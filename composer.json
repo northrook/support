@@ -3,6 +3,12 @@
   "description": "Core support functions.",
   "type": "library",
   "license": "MIT",
+  "authors": [
+    {
+      "name": "Martin",
+      "email": "mn@northrook.com"
+    }
+  ],
   "autoload": {
     "psr-4": {
       "": "src/"
@@ -11,12 +17,6 @@
       "src/functions.php"
     ]
   },
-  "authors": [
-    {
-      "name": "Martin",
-      "email": "mn@northrook.com"
-    }
-  ],
   "minimum-stability": "dev",
   "prefer-stable": true,
   "require": {
@@ -24,9 +24,15 @@
   },
   "require-dev": {
     "phpstan/phpstan": "@stable",
-    "friendsofphp/php-cs-fixer": "@stable"
+    "northrook/php-cs": "dev-main"
   },
   "scripts": {
     "phpstan": "vendor/bin/phpstan analyse"
-  }
+  },
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "https://github.com/northrook/php-cs"
+    }
+  ]
 }
