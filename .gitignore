@@ -1,0 +1,12 @@
+# PHPStorm
+/.idea/
+
+# Composer
+/vendor/
+/composer.phar
+
+# Build data
+.env
+*.lock
+*.cache
+/*.php
