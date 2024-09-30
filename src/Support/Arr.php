@@ -69,7 +69,7 @@ final class Arr
      *
      * @return array<array-key, mixed>
      */
-    public function flatten( array $array, bool $filter = false ) : array
+    public static function flatten( array $array, bool $filter = false ) : array
     {
         $result = [];
 
@@ -93,7 +93,7 @@ final class Arr
      *
      * @return array<array-key, scalar>
      */
-    public function uniqueScalar( array $array, bool $caseSensitive = false ) : array
+    public static function uniqueScalar( array $array, bool $caseSensitive = false ) : array
     {
         if ( ! $caseSensitive ) {
             $array = \array_map( static fn( $value ) => \is_string( $value ) ? \strtolower( $value ) : $value, $array );
@@ -107,7 +107,7 @@ final class Arr
      *
      * @return array<array-key, mixed>
      */
-    public function uniqueValues( array $array ) : array
+    public static function uniqueValues( array $array ) : array
     {
         $unique = [];
 
@@ -148,7 +148,7 @@ final class Arr
      *
      * @return bool
      */
-    public function hasKeys( array $array, int|string ...$keys ) : bool
+    public static function hasKeys( array $array, int|string ...$keys ) : bool
     {
         foreach ( $keys as $key ) {
             if ( ! \array_key_exists( $key, $array ) ) {
@@ -166,7 +166,7 @@ final class Arr
      *
      * @return array<array-key, mixed>
      */
-    public function replaceKey( array $array, int|string $key, int|string $replacement ) : array
+    public static function replaceKey( array $array, int|string $key, int|string $replacement ) : array
     {
         $keys  = \array_keys( $array );
         $index = \array_search( $key, $keys, true );
@@ -185,7 +185,7 @@ final class Arr
      *
      * @return object
      */
-    public function asObject( array|object $array, bool $filter = false ) : object
+    public static function asObject( array|object $array, bool $filter = false ) : object
     {
         if ( $filter && \is_array( $array ) ) {
             $array = \array_filter( $array );
