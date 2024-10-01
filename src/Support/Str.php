@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace Support;
 
 use JetBrains\PhpStorm\Language;
+use Stringable;
+use const ENCODING;
 
-class Str implements \Stringable
+class Str implements Stringable
 {
     public const string ENCODING = 'UTF-8';
 
@@ -29,12 +31,12 @@ class Str implements \Stringable
      *
      * Directly inspired by [aleblanc](https://github.com/aleblanc)'s comment on [this GitHub issue](https://github.com/symfony/symfony/issues/44281#issuecomment-1647665965).
      *
-     * @param null|string|\Stringable $string
-     * @param non-empty-string        $encoding
+     * @param null|string|Stringable $string
+     * @param non-empty-string       $encoding
      *
      * @return string
      */
-    public static function encode( null|string|\Stringable $string, string $encoding = \ENCODING ) : string
+    public static function encode( null|string|Stringable $string, string $encoding = ENCODING ) : string
     {
         if ( ! $string = (string) $string ) {
             return EMPTY_STRING;
@@ -44,7 +46,7 @@ class Str implements \Stringable
         $decoded  = \htmlspecialchars_decode( $entities, ENT_NOQUOTES );
         $map      = [0x80, 0x10_FF_FF, 0, ~0];
 
-        return \mb_encode_numericentity( $decoded, $map, \ENCODING );
+        return \mb_encode_numericentity( $decoded, $map, ENCODING );
     }
 
     /**
@@ -62,22 +64,28 @@ class Str implements \Stringable
                 : \preg_replace( "#\s+#", WHITESPACE, $string ) );
     }
 
+    /**
+     * @param string $pattern
+     * @param string $string
+     *
+     * @return ?string
+     */
     public static function extract(
         #[Language( 'RegExp' )] string $pattern,
         string $string,
-    ) : null|string|array {
+    ) : ?string {
         if ( false === \preg_match_all( $pattern, $string, $matches, PREG_SET_ORDER ) ) {
             return null;
         }
 
-        return $matches[0][0];
+        return $matches[0][0] ?? null;
     }
 
     public static function extractNamedGroups(
         string $pattern,
         string $subject,
-        int $offset = 0,
-        int &$count = 0,
+        int    $offset = 0,
+        int &    $count = 0,
     ) : array {
         \preg_match_all( $pattern, $subject, $matches, PREG_SET_ORDER | PREG_UNMATCHED_AS_NULL, $offset );
 
@@ -99,18 +107,18 @@ class Str implements \Stringable
     }
 
     /**
-     * @param null|string|\Stringable $string
-     * @param non-empty-string        $separator
-     * @param int                     $limit
-     * @param bool                    $filter
+     * @param null|string|Stringable $string
+     * @param non-empty-string       $separator
+     * @param int                    $limit
+     * @param bool                   $filter
      *
      * @return string[]
      */
     public static function explode(
-        null|string|\Stringable $string,
-        string $separator = ',',
-        int $limit = PHP_INT_MAX,
-        bool $filter = true,
+        null|string|Stringable $string,
+        string                 $separator = ',',
+        int                    $limit = PHP_INT_MAX,
+        bool                   $filter = true,
     ) : array {
         $exploded = \explode( $separator, toString( $string ), $limit );
 
@@ -129,9 +137,9 @@ class Str implements \Stringable
      * @return array|string|string[] The processed `$content`, or null if `$content` is empty
      */
     public static function replaceEach(
-        array $map,
+        array        $map,
         string|array $content,
-        bool $caseSensitive = true,
+        bool         $caseSensitive = true,
     ) : string|array {
         if ( ! $content ) {
             return $content;
@@ -155,8 +163,8 @@ class Str implements \Stringable
     public static function bisect(
         string $string,
         string $substring,
-        bool $first = true,
-        bool $includeSubstring = true,
+        bool   $first = true,
+        bool   $includeSubstring = true,
     ) : array {
         if ( ! \str_contains( $string, $substring ) ) {
             return [$string, null];
@@ -205,29 +213,29 @@ class Str implements \Stringable
      * }
      *```
      *
-     * @param string       $string
-     * @param array|string $needle
-     * @param bool         $returnNeedles
-     * @param bool         $containsOnlyOne
-     * @param bool         $containsAll
-     * @param bool         $caseSensitive
+     * @param string   $string
+     * @param string[] $needle
+     * @param bool     $returnNeedles
+     * @param bool     $containsOnlyOne
+     * @param bool     $containsAll
+     * @param bool     $caseSensitive
      *
      * @return array|bool|int|string
      */
     public static function contains(
-        string $string,
+        string       $string,
         string|array $needle,
-        bool $returnNeedles = false,
-        bool $containsOnlyOne = false,
-        bool $containsAll = false,
-        bool $caseSensitive = false,
+        bool         $returnNeedles = false,
+        bool         $containsOnlyOne = false,
+        bool         $containsAll = false,
+        bool         $caseSensitive = false,
     ) : bool|int|array|string {
         $count    = 0;
         $contains = [];
 
-        $find     = static fn( string $string ) => $caseSensitive ? $string : \strtolower( $string );
+        $find = static fn( string $string ) => $caseSensitive ? $string : \strtolower( $string );
 
-        $string   = $find( $string );
+        $string = $find( $string );
 
         if ( \is_string( $needle ) ) {
             $count = \substr_count( $string, $find( $needle ) );
@@ -291,6 +299,13 @@ class Str implements \Stringable
         return \substr( $string, 0, $offset );
     }
 
+    /**
+     * @param string   $string
+     * @param string[] $substring
+     * @param bool     $caseSensitive
+     *
+     * @return bool
+     */
     public static function startsWith( string $string, string|array $substring, bool $caseSensitive = false ) : bool
     {
         if ( ! $caseSensitive ) {
@@ -306,6 +321,13 @@ class Str implements \Stringable
         return false;
     }
 
+    /**
+     * @param string   $string
+     * @param string[] $substring
+     * @param bool     $caseSensitive
+     *
+     * @return bool
+     */
     public static function endsWith( string $string, string|array $substring, bool $caseSensitive = false ) : bool
     {
         if ( ! $caseSensitive ) {

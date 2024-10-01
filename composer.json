@@ -10,10 +10,11 @@
     }
   ],
   "autoload": {
-    "psr-4": {
-      "": "src/"
-    },
+    "classmap": [
+      "src/"
+    ],
     "files": [
+      "src/constants.php",
       "src/functions.php"
     ]
   },
@@ -28,11 +29,5 @@
   },
   "scripts": {
     "phpstan": "vendor/bin/phpstan analyse"
-  },
-  "repositories": [
-    {
-      "type": "vcs",
-      "url": "https://github.com/northrook/php-cs"
-    }
-  ]
+  }
 }

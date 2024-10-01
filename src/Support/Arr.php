@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Support;
 
+use JsonException;
+
 use function Assert\{isEmpty, isIterable};
 
 final class Arr
@@ -26,9 +28,9 @@ final class Arr
      * @return array<TKey, TValue>
      */
     public static function filter(
-        array $array,
+        array     $array,
         ?callable $callback = null,
-        int $mode = Arr::FILTER_VALUE,
+        int       $mode = Arr::FILTER_VALUE,
     ) : array {
         $callback ??= static fn( $v ) => ! isEmpty( $v );
         return \array_filter( $array, $callback, $mode );
@@ -45,9 +47,9 @@ final class Arr
      * @return array<array-key, mixed>
      */
     public static function filterRecursive(
-        array $array,
+        array     $array,
         ?callable $callback = null,
-        int $mode = Arr::FILTER_VALUE,
+        int       $mode = Arr::FILTER_VALUE,
     ) : array {
         foreach ( $array as $key => $value ) {
             if ( \is_array( $value ) ) {
@@ -199,7 +201,7 @@ final class Arr
                 JSON_THROW_ON_ERROR,
             );
         }
-        catch ( \JsonException ) {
+        catch ( JsonException ) {
             return (object) $array;
         }
     }

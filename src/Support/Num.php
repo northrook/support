@@ -87,11 +87,11 @@ final class Num
             ['PB', 3],
         ];
 
-        $factor               = $bytes ? \floor( \log( (int) $bytes, 1_024 ) ) : 0;
-        $factor               = (float) \min( $factor, \count( $unitDecimalsByFactor ) - 1 );
+        $factor = $bytes ? \floor( \log( (int) $bytes, 1_024 ) ) : 0;
+        $factor = (float) \min( $factor, \count( $unitDecimalsByFactor ) - 1 );
 
-        $value                = \round( $bytes / ( 1_024 ** $factor ), (int) $unitDecimalsByFactor[$factor][1] );
-        $units                = (string) $unitDecimalsByFactor[$factor][0];
+        $value = \round( $bytes / ( 1_024 ** $factor ), (int) $unitDecimalsByFactor[$factor][1] );
+        $units = (string) $unitDecimalsByFactor[$factor][0];
 
         return $value.$units;
     }

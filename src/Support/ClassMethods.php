@@ -38,11 +38,11 @@ trait ClassMethods
      */
     final protected function extendingClasses(
         string|object $class,
-        bool $includeSelf = true,
-        bool $includeInterface = true,
-        bool $includeTrait = true,
-        bool $namespace = true,
-        bool $details = false,
+        bool          $includeSelf = true,
+        bool          $includeInterface = true,
+        bool          $includeTrait = true,
+        bool          $namespace = true,
+        bool          $details = false,
     ) : array {
         return extendingClasses( $class, $includeSelf, $includeInterface, $includeTrait, $namespace, $details );
     }

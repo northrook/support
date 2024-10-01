@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 namespace {
-
     if ( ! defined( 'ENCODING' ) ) {
         define( 'ENCODING', 'UTF-8' );
     }
@@ -15,16 +14,16 @@ namespace Support {
     // <editor-fold desc="Constants">
 
     const
-        TAB                           = "\t",
-        EMPTY_STRING                  = '',
-        WHITESPACE                    = ' ';
+        TAB          = "\t",
+        EMPTY_STRING = '',
+        WHITESPACE   = ' ';
 
     /** Line Feed  */
-    const LF                          = "\n";
+    const LF = "\n";
     /** Carriage Return */
-    const CR                          = "\r";
+    const CR = "\r";
     /** Carriage Return and Line Feed */
-    const CRLF                        = "\r\n";
+    const CRLF = "\r\n";
 
     const URL_SAFE_CHARACTERS_UNICODE = "\w.,_~:;@!$&*?#=%()+\-\[\]\'\/";
     const URL_SAFE_CHARACTERS         = "A-Za-z0-9.,_~:;@!$&*?#=%()+\-\[\]\'\/";
@@ -55,7 +54,7 @@ namespace Support {
         $fromDateTime = $when instanceof \DateTimeInterface;
         $datetime     = (string) ( $fromDateTime ? $when->getTimestamp() : $when );
 
-        $timezone     = match ( true ) {
+        $timezone = match ( true ) {
             \is_null( $timezone )   => $fromDateTime ? $when->getTimezone() : \timezone_open( 'UTC' ),
             \is_string( $timezone ) => \timezone_open( $timezone ),
             default                 => $timezone,
@@ -75,7 +74,7 @@ namespace Support {
      * - This function assumes the Composer directory is present in the project root.
      * - The return is cached for this process.
      *
-     * @return non-empty-string
+     * @return string
      */
     function getProjectRootDirectory() : string
     {
@@ -151,7 +150,7 @@ namespace Support {
         }
 
         // @var scalar $value
-        return (string) $value;
+        return (string) @\json_encode( $value );
     }
 
     /**
@@ -228,17 +227,17 @@ namespace Support {
      */
     function extendingClasses(
         string|object $class,
-        bool $includeSelf = true,
-        bool $includeInterface = true,
-        bool $includeTrait = true,
-        bool $namespace = true,
-        bool $details = false,
+        bool          $includeSelf = true,
+        bool          $includeInterface = true,
+        bool          $includeTrait = true,
+        bool          $namespace = true,
+        bool          $details = false,
     ) : array {
-        $class   = \is_object( $class ) ? $class::class : $class;
+        $class = \is_object( $class ) ? $class::class : $class;
 
         $classes = $includeSelf ? [$class => 'self'] : [];
 
-        $parent  = \class_parents( $class ) ?: [];
+        $parent = \class_parents( $class ) ?: [];
         $classes += \array_fill_keys( $parent, 'parent' );
 
         if ( $includeInterface ) {
@@ -288,7 +287,8 @@ namespace Assert {
         // Ensure OPcache is installed and not disabled
         if (
             ! \function_exists( 'opcache_invalidate' )
-            || ! \ini_get( 'opcache.enable' ) ) {
+            || ! \ini_get( 'opcache.enable' )
+        ) {
             return false;
         }
 
@@ -482,7 +482,7 @@ namespace String {
      * @return string 16 character hash of the value
      */
     function hashKey(
-        mixed $value,
+        mixed  $value,
         string $encoder = 'json',
     ) : string {
         // Use serialize if defined
@@ -523,8 +523,8 @@ namespace String {
      */
     function sourceKey(
         string|\Stringable $source,
-        string $separator = '-',
-        ?string $fromRoot = null,
+        string             $separator = '-',
+        ?string            $fromRoot = null,
     ) : string {
         // Can not be null or an empty string
         if ( ! $string = (string) $source ) {
@@ -647,8 +647,8 @@ namespace String {
      */
     function escapeHtmlAttr(
         null|string|\Stringable $string,
-        bool $double = true,
-        string $encoding = 'UTF-8',
+        bool                    $double = true,
+        string                  $encoding = 'UTF-8',
     ) : string {
         trigger_deprecation( 'Northrook\\Functions', 'dev', __METHOD__ );
         // Can not be null or an empty string
@@ -790,8 +790,8 @@ namespace String {
      * @return void
      */
     function characterLimit(
-        string $string,
-        int $limit,
+        string  $string,
+        int     $limit,
         ?string $caller = null,
     ) : void {
         $limit  = \PHP_MAXPATHLEN - 2;
