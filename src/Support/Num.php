@@ -76,13 +76,7 @@ final class Num
      */
     public static function byteSize( string|int|float $bytes ) : string
     {
-        if ( ! \is_numeric( $bytes ) ) {
-            $type  = \gettype( $bytes );
-            $value = \print_r( $bytes, true );
-            throw new \InvalidArgumentException( __METHOD__." only accepts string, int, or float.\n'{$type}' of '{$value}' provided." );
-        }
-
-        $bytes                = (float) $bytes;
+        $bytes = (float) ( \is_string( $bytes ) ? \mb_strlen( $bytes, '8bit' ) : $bytes );
 
         $unitDecimalsByFactor = [
             ['B', 0],

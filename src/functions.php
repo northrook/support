@@ -85,8 +85,7 @@ namespace Support {
             static function() : string {
                 // Get an array of each directory leading to this file
                 $explodeCurrentDirectory = \explode( \DIRECTORY_SEPARATOR, __DIR__ );
-                // Slice off three levels, in this case /core/northrook/composer-dir, commonly /vendor
-                $vendorDirectory         = \array_slice( $explodeCurrentDirectory, 0, -3 );
+                $vendorDirectory         = \array_slice( $explodeCurrentDirectory, 0, -4 );
 
                 // Implode and return the $projectRoot path
                 return \implode( \DIRECTORY_SEPARATOR, $vendorDirectory );
