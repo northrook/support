@@ -13,18 +13,6 @@ namespace Support {
     use function Assert\{isIterable, isScalar};
     // <editor-fold desc="Constants">
 
-    const
-        TAB          = "\t",
-        EMPTY_STRING = '',
-        WHITESPACE   = ' ';
-
-    /** Line Feed  */
-    const LF = "\n";
-    /** Carriage Return */
-    const CR = "\r";
-    /** Carriage Return and Line Feed */
-    const CRLF = "\r\n";
-
     const URL_SAFE_CHARACTERS_UNICODE = "\w.,_~:;@!$&*?#=%()+\-\[\]\'\/";
     const URL_SAFE_CHARACTERS         = "A-Za-z0-9.,_~:;@!$&*?#=%()+\-\[\]\'\/";
     const FILTER_JSON_ENCODE          = JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE;

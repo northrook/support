@@ -1,5 +1,23 @@
 <?php
 
+namespace Support {
+
+    /** Will use a `default` setting unless changed */
+    const AUTO = null;
+
+    const
+        TAB          = "\t",
+        EMPTY_STRING = '',
+        WHITESPACE   = ' ';
+
+    /** Line Feed  */
+    const LF = "\n";
+    /** Carriage Return */
+    const CR = "\r";
+    /** Carriage Return and Line Feed */
+    const CRLF = "\r\n";
+}
+
 namespace Time {
     const
         MINUTE  = 60,
