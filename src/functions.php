@@ -13,10 +13,11 @@ namespace Support {
     use function Assert\{isIterable, isScalar};
     // <editor-fold desc="Constants">
 
-    const URL_SAFE_CHARACTERS_UNICODE = "\w.,_~:;@!$&*?#=%()+\-\[\]\'\/";
-    const URL_SAFE_CHARACTERS         = "A-Za-z0-9.,_~:;@!$&*?#=%()+\-\[\]\'\/";
-    const FILTER_JSON_ENCODE          = JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE;
-    const FILTER_STRING_COMMENTS      = [
+    const URL_SAFE_CHARACTERS_UNICODE   = "\w.,_~:;@!$&*?#=%()+\-\[\]\'\/";
+    const URL_SAFE_CHARACTERS           = "A-Za-z0-9.,_~:;@!$&*?#=%()+\-\[\]\'\/";
+    const ENCODE_ESCAPE_JSON            = JSON_UNESCAPED_UNICODE       | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE;
+    const ENCODE_PARTIAL_UNESCAPED_JSON = JSON_PARTIAL_OUTPUT_ON_ERROR | JSON_UNESCAPED_UNICODE;
+    const FILTER_STRING_COMMENTS        = [
         '{* '   => '<!-- ', // Latte
         ' *}'   => ' -->',
         '{# '   => '<!-- ', // Twig
@@ -421,7 +422,7 @@ namespace String {
 
     use Support\Normalize;
     use function Support\getProjectRootDirectory;
-    use const Support\{EMPTY_STRING, FILTER_JSON_ENCODE, FILTER_STRING_COMMENTS,  URL_SAFE_CHARACTERS_UNICODE};
+    use const Support\{EMPTY_STRING, ENCODE_ESCAPE_JSON, FILTER_STRING_COMMENTS,  URL_SAFE_CHARACTERS_UNICODE};
 
     // <editor-fold desc="Key Functions">
 
@@ -612,7 +613,7 @@ namespace String {
     {
         trigger_deprecation( 'Northrook\\Functions', 'probe', __METHOD__ );
 
-        $json = \json_encode( $value, FILTER_JSON_ENCODE );
+        $json = \json_encode( $value, ENCODE_ESCAPE_JSON );
         if ( \json_last_error() ) {
             throw new \RuntimeException( \json_last_error_msg() );
         }

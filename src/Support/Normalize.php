@@ -78,22 +78,18 @@ final class Normalize
     ) : string {
         static $cache = [];
 
-        return $cache[\json_encode( [$string, $trailingSlash], 832 )] ??= (
+        return $cache[\json_encode( [$string, $trailingSlash], ENCODE_PARTIAL_UNESCAPED_JSON )] ??= (
             static function() use ( $string, $trailingSlash ) : string {
                 // Normalize separators
                 $normalize = \str_replace( ['\\', '/'], DIRECTORY_SEPARATOR, $string );
+
+                $isRelative = DIRECTORY_SEPARATOR === $normalize[0];
 
                 // Explode strings for separator deduplication
                 $exploded = \is_string( $normalize ) ? \explode( DIRECTORY_SEPARATOR, $normalize ) : $normalize;
 
                 // Ensure each part does not start or end with illegal characters
-                $exploded = \array_map(
-                    static fn( $item ) => \trim(
-                        string     : $item,
-                        characters : " \n\r\t\v\0\\/",
-                    ),
-                    $exploded,
-                );
+                $exploded = \array_map( static fn( $item ) => \trim( $item, " \n\r\t\v\0\\/" ), $exploded );
 
                 // Filter the exploded path, and implode using the directory separator
                 $path = \implode( DIRECTORY_SEPARATOR, \array_filter( $exploded ) );
@@ -102,8 +98,14 @@ final class Normalize
                     throw new LengthException( __FUNCTION__." resulted in a '{$length}' character string, exceeding the '{$limit}' limit." );
                 }
 
+                // Preserve intended relative paths
+                if ( $isRelative ) {
+                    $path = DIRECTORY_SEPARATOR.$path;
+                }
                 // Add to realpath cache if valid
-                $path = \realpath( $path ) ?: $path;
+                else {
+                    $path = \realpath( $path ) ?: $path;
+                }
 
                 // Return with or without a $trailingSlash
                 return $trailingSlash ? $path.DIRECTORY_SEPARATOR : $path;
