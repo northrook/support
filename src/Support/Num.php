@@ -70,6 +70,8 @@ final class Num
     /**
      * Human-readable size notation for a byte value.
      *
+     * @link https://en.wikipedia.org/wiki/Byte#Multiple-byte_units Wikipedia - Multiple-byte units
+     *
      * @param float|int|string $bytes Bytes to calculate
      *
      * @return string
@@ -79,12 +81,12 @@ final class Num
         $bytes = (float) ( \is_string( $bytes ) ? \mb_strlen( $bytes, '8bit' ) : $bytes );
 
         $unitDecimalsByFactor = [
-            ['B', 0],
-            ['kB', 0],
-            ['MB', 2],
-            ['GB', 2],
-            ['TB', 3],
-            ['PB', 3],
+            ['B', 0],  //     byte
+            ['KiB', 0], // kibibyte
+            ['MiB', 2], // mebibyte
+            ['GiB', 2], // gigabyte
+            ['TiB', 3], // mebibyte
+            ['PiB', 3], // mebibyte
         ];
 
         $factor = $bytes ? \floor( \log( (int) $bytes, 1_024 ) ) : 0;
