@@ -16,6 +16,35 @@ final class Arr
         FILTER_KEY   = 2;
 
     /**
+     * Return the closest key or value that `$match` in the provided `$array`.
+     *
+     * @wip
+     * @link https://stackoverflow.com/questions/5464919/find-a-matching-or-closest-value-in-an-array
+     *
+     * @param int|string              $match
+     * @param array<array-key, mixed> $array
+     *
+     * @return mixed
+     */
+    public static function closest( int|string $match, array $array ) : mixed
+    {
+        // TODO : Match key/value toggle
+        // TODO : closest int/float round up/down
+        // TODO : closest string match - str_starts_with / other algo?
+        // TODO : option to return key/value of match
+        // TODO : return FALSE on no match
+
+        $closest = null;
+
+        foreach ( $array as $item ) {
+            if ( null === $closest || \abs( $match - $closest ) > \abs( $item - $match ) ) {
+                $closest = $item;
+            }
+        }
+        return $closest;
+    }
+
+    /**
      * @template TKey of array-key
      * @template TValue of mixed
      * Default:
