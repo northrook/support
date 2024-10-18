@@ -37,6 +37,7 @@ final class Arr
         $closest = null;
 
         foreach ( $array as $item ) {
+            \assert( \is_numeric( $match ) && \is_numeric( $item ) );
             if ( null === $closest || \abs( $match - $closest ) > \abs( $item - $match ) ) {
                 $closest = $item;
             }

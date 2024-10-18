@@ -81,6 +81,14 @@ class Str implements Stringable
         return $matches[0][0] ?? null;
     }
 
+    /**
+     * @param string $pattern
+     * @param string $subject
+     * @param int    $offset
+     * @param int    $count
+     *
+     * @return array<int, array<null|string>>
+     */
     public static function extractNamedGroups(
         string $pattern,
         string $subject,
@@ -220,7 +228,7 @@ class Str implements Stringable
      * @param bool     $containsAll
      * @param bool     $caseSensitive
      *
-     * @return array|bool|int|string
+     * @return bool|int|string|string[]
      */
     public static function contains(
         string       $string,
@@ -359,5 +367,22 @@ class Str implements Stringable
         }
 
         return $string.$separator.$with;
+    }
+
+    /**
+     * Escape each and every character in the provided string.
+     *
+     * ```
+     *  escapeCharacters('Hello!');
+     *  // => '\H\e\l\l\o\!'
+     * ```
+     *
+     * @param string $string
+     *
+     * @return string
+     */
+    public static function eascapeEach( string $string ) : string
+    {
+        return \implode( '', \array_map( static fn( $char ) => '\\'.$char, \str_split( $string ) ) );
     }
 }
