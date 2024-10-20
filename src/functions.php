@@ -260,6 +260,23 @@ namespace Assert {
 
     use const Support\URL_SAFE_CHARACTERS_UNICODE;
 
+    function as_string( mixed $value ) : string
+    {
+        \assert( \is_string( $value ) );
+        return $value;
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return array<array-key, mixed>
+     */
+    function as_array( mixed $value ) : array
+    {
+        \assert( \is_array( $value ) );
+        return $value;
+    }
+
     /**
      * Check whether the script is being executed from a command line.
      */
