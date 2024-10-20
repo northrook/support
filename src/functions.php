@@ -268,19 +268,23 @@ namespace Assert {
      */
     function as_string( mixed $value, bool $nullable = false ) : ?string
     {
-        \assert( \is_string( $value ) || ($nullable && \is_null( $value )) );
+        \assert( \is_string( $value ) || ( $nullable && \is_null( $value ) ) );
 
         return $value;
     }
 
     /**
      * @param mixed $value
+     * @param bool  $is_list
      *
      * @return array<array-key, mixed>
      */
-    function as_array( mixed $value ) : array
+    function as_array( mixed $value, bool $is_list = false ) : array
     {
         \assert( \is_array( $value ) );
+        if ( $is_list ) {
+            \assert( \array_is_list( $value ) );
+        }
         return $value;
     }
 
