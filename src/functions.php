@@ -260,9 +260,16 @@ namespace Assert {
 
     use const Support\URL_SAFE_CHARACTERS_UNICODE;
 
-    function as_string( mixed $value ) : string
+    /**
+     * @param mixed $value
+     * @param bool  $nullable
+     *
+     * @return ($nullable is true ? null|string : string)
+     */
+    function as_string( mixed $value, bool $nullable = false ) : ?string
     {
-        \assert( \is_string( $value ) );
+        \assert( \is_string( $value ) || ($nullable && \is_null( $value )) );
+
         return $value;
     }
 
