@@ -161,6 +161,41 @@ class Str implements Stringable
     }
 
     /**
+     * Split the provided `$string` in two, at the first or last `$substring`.
+     *
+     * - Always returns an array of `[string: before, null|string: after]`.
+     * - The matched part of the `$substring` belongs to `after` by default.
+     * - If no `$substring` is found, the `after` value will be `null`
+     *
+     *  ```
+     * // default, match first
+     *  Str::bisect(
+     *      string: 'this example [has] example [substring].',
+     *      substring: '[',
+     *  ) [
+     *      'this example ',
+     *      '[has] example [substring].',
+     *  ]
+     * // match last
+     *  Str::bisect(
+     *      string: 'this example [has] example [substring].',
+     *      substring: '[',
+     *      first: false,
+     *  ) [
+     *      'this example [has] example ',
+     *      '[substring].',
+     *  ]
+     * // string .= substring
+     *  Str::bisect(
+     *      string: 'this example [has] example [substring].',
+     *      substring: '[',
+     *      includeSubstring: true,
+     *  ) [
+     *      'this example [',
+     *      'has] example [substring].',
+     *  ]
+     * ```
+     *
      * @param string $string
      * @param string $substring
      * @param bool   $first
@@ -172,32 +207,24 @@ class Str implements Stringable
         string $string,
         string $substring,
         bool   $first = true,
-        bool   $includeSubstring = true,
+        bool   $includeSubstring = false,
     ) : array {
-        if ( ! \str_contains( $string, $substring ) ) {
-            return [$string, null];
-        }
 
-        $offset = $first ? \strpos( $string, $substring ) : \strrpos( $string, $substring );
+        $offset = $first ? \mb_strpos( $string, $substring ) : \mb_strrpos( $string, $substring );
 
         if ( false === $offset ) {
-            \trigger_error(
-                __FUNCTION__." could not split '{$substring}' using '{$substring}'.\nOffset position could not be determined.",
-                E_USER_WARNING,
-            );
-
             return [$string, null];
         }
 
         if ( $first ) {
-            $offset = $includeSubstring ? $offset + \strlen( $substring ) : $offset;
+            $offset = $includeSubstring ? $offset + \mb_strlen( $substring ) : $offset;
         }
         else {
-            $offset = $includeSubstring ? $offset : $offset - \strlen( $substring );
+            $offset = $includeSubstring ? $offset : $offset - \mb_strlen( $substring );
         }
 
-        $before = \substr( $string, 0, $offset );
-        $after  = \substr( $string, $offset );
+        $before = \mb_substr( $string, 0, $offset );
+        $after  = \mb_substr( $string, $offset );
 
         return [
             $before,

@@ -24,7 +24,8 @@
     "php": ">=8.3"
   },
   "require-dev": {
-    "northrook/php-cs": "dev-main"
+    "northrook/php-cs": "dev-main",
+    "northrook/dev-env": "dev-main"
   },
   "scripts": {
     "phpstan": "vendor/bin/phpstan analyse"
