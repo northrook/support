@@ -180,6 +180,41 @@ namespace Support {
     // <editor-fold desc="Class Functions">
 
     /**
+     * @param class-string|object $class
+     * @param class-string|object $trait
+     *
+     * @return bool
+     */
+    function class_uses_trait( string|object $class, string|object $trait ) : bool
+    {
+        if ( \is_object( $trait ) ) {
+            $trait = $trait::class;
+        }
+
+        return \in_array( $trait, get_class_traits( $class ), true );
+    }
+
+    /**
+     * @param class-string|object $class
+     *
+     * @return array<string, class-string>
+     */
+    function get_class_traits( string|object $class ) : array
+    {
+        if ( \is_object( $class ) ) {
+            $class = $class::class;
+        }
+
+        $traits = \class_uses( $class );
+
+        foreach ( \class_parents( $class ) as $parent ) {
+            $traits += \class_uses( $parent );
+        }
+
+        return $traits;
+    }
+
+    /**
      * # Get the class name of a provided class, or the calling class.
      *
      * - Will use the `debug_backtrace()` to get the calling class if no `$class` is provided.
