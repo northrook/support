@@ -185,13 +185,13 @@ namespace Support {
      *
      * @return bool
      */
-    function class_uses_trait( string|object $class, string|object $trait ) : bool
+    function uses_trait( string|object $class, string|object $trait ) : bool
     {
         if ( \is_object( $trait ) ) {
             $trait = $trait::class;
         }
 
-        return \in_array( $trait, get_class_traits( $class ), true );
+        return \in_array( $trait, get_traits( $class ), true );
     }
 
     /**
@@ -199,7 +199,7 @@ namespace Support {
      *
      * @return array<string, class-string>
      */
-    function get_class_traits( string|object $class ) : array
+    function get_traits( string|object $class ) : array
     {
         if ( \is_object( $class ) ) {
             $class = $class::class;
