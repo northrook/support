@@ -180,21 +180,32 @@ namespace Support {
     // <editor-fold desc="Class Functions">
 
     /**
-     * @param class-string|object $class
-     * @param class-string|object $trait
+     * @param class-string|object $class     Check if this class uses a given Trait
+     * @param class-string|object $trait     The Trait to check against
+     * @param bool                $recursive [false] Also check for Traits using Traits
      *
      * @return bool
      */
-    function uses_trait( string|object $class, string|object $trait ) : bool
+    function uses_trait( string|object $class, string|object $trait, bool $recursive = false ) : bool
     {
         if ( \is_object( $trait ) ) {
             $trait = $trait::class;
         }
 
-        return \in_array( $trait, get_traits( $class ), true );
+        $traits = get_traits( $class );
+
+        if ( $recursive ) {
+            foreach ( $traits as $traitClass ) {
+                $traits += get_traits( $traitClass );
+            }
+        }
+
+        return \in_array( $trait, $traits, true );
     }
 
     /**
+     *
+     *
      * @param class-string|object $class
      *
      * @return array<string, class-string>
