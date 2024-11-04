@@ -180,6 +180,42 @@ namespace Support {
     // <editor-fold desc="Class Functions">
 
     /**
+     * Returns the name of an object or callable.
+     *
+     *
+     * @param callable|object|string $from
+     * @param bool                   $assertive [optional] ensure the `class_exists`
+     *
+     * @return null|class-string|string
+     */
+    function get_class_name( object|callable|string $from, bool $assertive = false ) : ?string
+    {
+
+        // array callables [new SomeClass, 'method']
+        if ( \is_array( $from ) && isset( $from[0] ) && \is_object( $from[0] ) ) {
+            $from = $from[0]::class;
+        }
+
+        // Handle direct objects
+        if ( \is_object( $from ) ) {
+            $from = $from::class;
+        }
+
+        // The [callable] type should have been handled by the two previous checks
+        \assert( \is_string( $from ) );
+
+        // Handle class strings
+        $class = \str_contains( $from, '::' ) ? \explode( '::', $from, 2 )[0] : $from;
+
+        // Check existence if $assertive is true
+        if ( $assertive ) {
+            $class = \class_exists( $class ) ? $class : null;
+        }
+
+        return $class;
+    }
+
+    /**
      * @param class-string|object $class     Check if this class uses a given Trait
      * @param class-string|object $trait     The Trait to check against
      * @param bool                $recursive [false] Also check for Traits using Traits
@@ -204,8 +240,6 @@ namespace Support {
     }
 
     /**
-     *
-     *
      * @param class-string|object $class
      *
      * @return array<string, class-string>
