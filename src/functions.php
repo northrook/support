@@ -182,13 +182,12 @@ namespace Support {
     /**
      * Returns the name of an object or callable.
      *
-     *
      * @param callable|object|string $from
      * @param bool                   $assertive [optional] ensure the `class_exists`
      *
-     * @return null|class-string|string
+     * @return class-string|string
      */
-    function get_class_name( object|callable|string $from, bool $assertive = false ) : ?string
+    function get_class_name( object|callable|string $from, bool $assertive = false ) : string
     {
 
         // array callables [new SomeClass, 'method']
@@ -209,7 +208,7 @@ namespace Support {
 
         // Check existence if $assertive is true
         if ( $assertive ) {
-            $class = \class_exists( $class ) ? $class : null;
+            \assert( \class_exists( $class ) );
         }
 
         return $class;
