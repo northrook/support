@@ -182,12 +182,46 @@ namespace Support {
     /**
      * Returns the name of an object or callable.
      *
+     * @param mixed $callable
+     * @param bool  $validate [optional] ensure the `class_exists`
+     *
+     * @return array{array-key: class-string, array-key: string}
+     */
+    function explode_class_callable( mixed $callable, bool $validate ) : array
+    {
+        if ( \is_array( $callable ) && \count( $callable ) === 1 ) {
+            $class  = $callable[0];
+            $method = $callable[1];
+        }
+        elseif ( \is_string( $callable ) ) {
+            [$class, $method] = \explode( '::', $callable );
+        }
+        else {
+            throw new \InvalidArgumentException( 'The provided callable must be a string or an array.' );
+        }
+
+        \assert( \is_string( $class ) && \is_string( $method ) );
+
+        // Check existence if $validate is true
+        if ( $validate && ! \class_exists( $class ) ) {
+            throw new \InvalidArgumentException( message: 'Class '.$class.' does not exists.' );
+        }
+
+        return [
+            $class,
+            $method,
+        ];
+    }
+
+    /**
+     * Returns the name of an object or callable.
+     *
      * @param mixed $from
-     * @param bool  $assertive [optional] ensure the `class_exists`
+     * @param bool  $validate [optional] ensure the `class_exists`
      *
      * @return class-string|string
      */
-    function get_class_name( mixed $from, bool $assertive = false ) : string
+    function get_class_name( mixed $from, bool $validate = false ) : string
     {
         // array callables [new SomeClass, 'method']
         if ( \is_array( $from ) && isset( $from[0] ) && \is_object( $from[0] ) ) {
@@ -205,9 +239,9 @@ namespace Support {
         // Handle class strings
         $class = \str_contains( $from, '::' ) ? \explode( '::', $from, 2 )[0] : $from;
 
-        // Check existence if $assertive is true
-        if ( $assertive ) {
-            \assert( \class_exists( $class ) );
+        // Check existence if $validate is true
+        if ( $validate && ! \class_exists( $class ) ) {
+            throw new \InvalidArgumentException( message: 'Class '.$class.' does not exists.' );
         }
 
         return $class;
