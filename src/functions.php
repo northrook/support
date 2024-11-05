@@ -182,14 +182,13 @@ namespace Support {
     /**
      * Returns the name of an object or callable.
      *
-     * @param callable|object|string $from
-     * @param bool                   $assertive [optional] ensure the `class_exists`
+     * @param mixed $from
+     * @param bool  $assertive [optional] ensure the `class_exists`
      *
      * @return class-string|string
      */
-    function get_class_name( object|callable|string $from, bool $assertive = false ) : string
+    function get_class_name( mixed $from, bool $assertive = false ) : string
     {
-
         // array callables [new SomeClass, 'method']
         if ( \is_array( $from ) && isset( $from[0] ) && \is_object( $from[0] ) ) {
             $from = $from[0]::class;
