@@ -75,18 +75,30 @@ final class Reflect
      *
      * @template T of object
      *
-     * @param Reflector       $reflector
+     * @param object|string   $reflector
      * @param class-string<T> $attribute
      *
-     * @return T
+     * @return null|T
      */
-    public static function getAttribute( Reflector $reflector, string $attribute ) : object
+    public static function getAttribute( object|string $reflector, string $attribute ) : ?object
     {
+        \assert( \is_object( $reflector ) );
+
+        if ( ! $reflector instanceof Reflector ) {
+            $reflector = self::class( $reflector );
+        }
+
+        \assert( $reflector instanceof Reflector );
+
         if ( ! \method_exists( $reflector, 'getAttributes' ) ) {
             throw new BadMethodCallException( "The passed reflector does not offer the 'getAttributes' method." );
         }
 
         $attributes = $reflector->getAttributes( $attribute );
+
+        if ( empty( $attributes ) ) {
+            return null;
+        }
 
         if ( \count( $attributes ) !== 1 ) {
             throw new BadMethodCallException( "The passed reflector does not offer the 'getAttributes' method." );
