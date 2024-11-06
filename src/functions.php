@@ -10,7 +10,6 @@ namespace {
 
 namespace Support {
 
-    use JetBrains\PhpStorm\Pure;
     use function Assert\{isIterable, isScalar};
     // <editor-fold desc="Constants">
 
@@ -386,7 +385,7 @@ namespace Assert {
     /**
      * Ensures the provided variable exists as a class.
      *
-     * @param mixed  $class
+     * @param mixed $class
      *
      * @return bool
      */

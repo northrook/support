@@ -83,7 +83,7 @@ final class Reflect
     public static function getAttribute( object|string|array $reflector, string $attribute ) : ?object
     {
         if ( \is_array( $reflector ) ) {
-            $reflector = self::method( $reflector[0], $attribute[1] );
+            $reflector = self::method( $reflector[0], $reflector[1] );
         }
 
         if ( ! $reflector instanceof Reflector ) {
