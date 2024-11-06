@@ -10,6 +10,7 @@ namespace {
 
 namespace Support {
 
+    use JetBrains\PhpStorm\Pure;
     use function Assert\{isIterable, isScalar};
     // <editor-fold desc="Constants">
 
@@ -214,6 +215,16 @@ namespace Support {
     }
 
     /**
+     * @param object|string $class
+     *
+     * @return string
+     */
+    function get_class_string( object|string $class ) : string
+    {
+        return \is_object( $class ) ? $class::class : $class;
+    }
+
+    /**
      * Returns the name of an object or callable.
      *
      * @param mixed $from
@@ -371,6 +382,22 @@ namespace Support {
 namespace Assert {
 
     use const Support\URL_SAFE_CHARACTERS_UNICODE;
+
+    /**
+     * Ensures the provided variable exists as a class.
+     *
+     * @param mixed  $class
+     *
+     * @return bool
+     */
+    function class_exists( mixed $class ) : bool
+    {
+        \assert( \is_string( $class ) || \is_object( $class ) );
+
+        \assert( \class_exists( \is_object( $class ) ? $class::class : $class ) );
+
+        return true;
+    }
 
     /**
      * @param mixed $value

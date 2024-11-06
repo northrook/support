@@ -75,14 +75,16 @@ final class Reflect
      *
      * @template T of object
      *
-     * @param object|string   $reflector
-     * @param class-string<T> $attribute
+     * @param array{0: class-string|object, 1: string}|class-string|object $reflector
+     * @param class-string<T>                                              $attribute
      *
      * @return null|T
      */
-    public static function getAttribute( object|string $reflector, string $attribute ) : ?object
+    public static function getAttribute( object|string|array $reflector, string $attribute ) : ?object
     {
-        \assert( \is_object( $reflector ) );
+        if ( \is_array( $reflector ) ) {
+            $reflector = self::method( $reflector[0], $attribute[1] );
+        }
 
         if ( ! $reflector instanceof Reflector ) {
             $reflector = self::class( $reflector );
