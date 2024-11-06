@@ -4,12 +4,42 @@ declare(strict_types=1);
 
 namespace Support;
 
+use JetBrains\PhpStorm\Deprecated;
+use PHPStan\BetterReflection\Reflection\Adapter\ReflectionAttribute;
 use ReflectionClass;
 use BadMethodCallException;
 use ReflectionException;
+use Reflector;
 
 final class Reflect
 {
+    /**
+     * @template T
+     *
+     * @param Reflector       $reflector
+     * @param class-string<T> $attribute
+     * @param bool            $asReflector
+     *
+     * @return ($asReflector is true ? ReflectionAttribute[] : T)
+     */
+    public static function getAttribute(
+        Reflector $reflector,
+        string    $attribute,
+        bool      $asReflector = false,
+    ) : mixed {
+        if ( ! \method_exists( $reflector, 'getAttributes' ) ) {
+            throw new BadMethodCallException( "The passed reflector does not offer the 'getAttributes' method." );
+        }
+
+        $attributes = $reflector->getAttributes( $attribute );
+
+        if ( \count( $attributes ) !== 1 ) {
+            throw new BadMethodCallException( "The passed reflector does not offer the 'getAttributes' method." );
+        }
+
+        return $asReflector ? $attributes[0] : $attributes[0]->newInstance();
+    }
+
     /**
      * Constructs a ReflectionClass.
      *
@@ -21,6 +51,7 @@ final class Reflect
      *
      * @return ReflectionClass<T>
      */
+    #[Deprecated]
     public static function class( object|string $objectOrClass ) : object
     {
         try {

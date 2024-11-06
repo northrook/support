@@ -185,9 +185,9 @@ namespace Support {
      * @param mixed $callable
      * @param bool  $validate [optional] ensure the `class_exists`
      *
-     * @return array{array-key: class-string, array-key: string}
+     * @return ($validate is true ? array{0: class-string, 1: string} : array{0: string, 1: string})
      */
-    function explode_class_callable( mixed $callable, bool $validate ) : array
+    function explode_class_callable( mixed $callable, bool $validate = false ) : array
     {
         if ( \is_array( $callable ) && \count( $callable ) === 1 ) {
             $class  = $callable[0];
@@ -219,7 +219,7 @@ namespace Support {
      * @param mixed $from
      * @param bool  $validate [optional] ensure the `class_exists`
      *
-     * @return class-string|string
+     * @return ($validate is true ? class-string : string)
      */
     function get_class_name( mixed $from, bool $validate = false ) : string
     {
