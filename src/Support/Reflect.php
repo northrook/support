@@ -21,7 +21,7 @@ final class Reflect
      * - Ensures the provided `class_exists`.
      * - Wraps {@see ReflectionException} in a {@see BadMethodCallException}.
      *
-     * @template T of ReflectionClass
+     * @template T of object
      *
      * @param class-string<T>|T $class
      *
