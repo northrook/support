@@ -7,7 +7,7 @@ namespace Support;
 use InvalidArgumentException;
 use Northrook\Filesystem\Path;
 
-final class GetClass
+final class ClassInfo
 {
     private const array TYPES = [
         'final',
@@ -22,12 +22,13 @@ final class GetClass
     /** @var array<int, string> */
     protected array $namespaces = [];
 
+    /** @var ?string [null] on Global namespace */
     public readonly ?string $namespace;
 
-    public readonly string $class;
+    public readonly string $className;
 
     /** @var class-string|string */
-    public readonly string $class_string;
+    public readonly string $class;
 
     public readonly bool $exists;
 
@@ -58,17 +59,17 @@ final class GetClass
 
         $this->namespace = \implode( '\\', $this->namespaces ) ?: null;
 
-        $this->class_string = \implode( '\\', [...$this->namespaces, $this->class] );
+        $this->class = \implode( '\\', [...$this->namespaces, $this->className] );
 
-        $this->exists = \class_exists( $this->class_string );
+        $this->exists = \class_exists( $this->class );
 
         if ( $validate && ! $this->exists ) {
-            throw new InvalidArgumentException( "The class {$this->class_string} does not exists." );
+            throw new InvalidArgumentException( "The class {$this->class} does not exists." );
         }
     }
 
     /**
-     * Check if the `class` implements a given `interface`.
+     * Check if the {@see self::class} implements a given `$interface`.
      *
      * @param string $interface
      *
@@ -80,7 +81,7 @@ final class GetClass
     }
 
     /**
-     * Check if the `class` implements a given `class`.
+     * Check if the {@see self::class} implements a given `class`.
      *
      * @param string $class
      *
@@ -92,7 +93,7 @@ final class GetClass
     }
 
     /**
-     * Check if the `class` implements a given `trait`.
+     * Check if the {@see self::class} implements a given `$trait`.
      *
      * @param string $trait
      *
@@ -108,7 +109,7 @@ final class GetClass
      */
     public function getInterfaces() : array
     {
-        return $this->interfaces ??= \class_implements( $this->class_string, false ) ?: [];
+        return $this->interfaces ??= \class_implements( $this->class ) ?: [];
     }
 
     /**
@@ -116,7 +117,7 @@ final class GetClass
      */
     public function getTraits() : array
     {
-        return $this->traits ??= get_traits( $this->class_string ) ?: [];
+        return $this->traits ??= get_traits( $this->class ) ?: [];
     }
 
     /**
@@ -124,7 +125,7 @@ final class GetClass
      */
     public function getParents() : array
     {
-        return $this->parents ??= \class_parents( $this->class_string ) ?: [];
+        return $this->parents ??= \class_parents( $this->class ) ?: [];
     }
 
     public static function fromString( string $string, bool $strict = false ) : self
@@ -135,7 +136,7 @@ final class GetClass
         return new self( $string, $strict );
     }
 
-    public static function fromFile( string $path, bool $strict = false ) : GetClass
+    public static function fromFile( string $path, bool $strict = false ) : ClassInfo
     {
         $path = new Path( $path );
 
@@ -151,7 +152,7 @@ final class GetClass
             throw new InvalidArgumentException( "The provided path '{$path}' must be to a PHP file." );
         }
 
-        return new GetClass( $path, $strict );
+        return new ClassInfo( $path, $strict );
     }
 
     private function parseFile() : void
@@ -173,7 +174,7 @@ final class GetClass
             }
 
             if ( $this->lineContainsDefinition( $line ) ) {
-                $this->class = $this->parseClassName( $line );
+                $this->className = $this->parseClassName( $line );
 
                 break;
             }

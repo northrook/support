@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 namespace {
+
     if ( ! defined( 'ENCODING' ) ) {
         define( 'ENCODING', 'UTF-8' );
     }
@@ -11,6 +12,7 @@ namespace {
 namespace Support {
 
     use function Assert\{isIterable, isScalar};
+
     // <editor-fold desc="Constants">
 
     const URL_SAFE_CHARACTERS_UNICODE   = "\w.,_~:;@!$&*?#=%()+\-\[\]\'\/";
@@ -53,7 +55,7 @@ namespace Support {
             return new \DateTimeImmutable( $datetime, $timezone ?: null );
         }
         catch ( \Exception $exception ) {
-            throw new \InvalidArgumentException( message : 'Unable to create a new DateTimeImmutable object: '.$exception->getMessage(), code    : 500, previous : $exception );
+            throw new \InvalidArgumentException( message : 'Unable to create a new DateTimeImmutable object: '.$exception->getMessage(), code    : 500, previous : $exception);
         }
     }
 
@@ -204,7 +206,7 @@ namespace Support {
 
         // Check existence if $validate is true
         if ( $validate && ! \class_exists( $class ) ) {
-            throw new \InvalidArgumentException( message: 'Class '.$class.' does not exists.' );
+            throw new \InvalidArgumentException( message : 'Class '.$class.' does not exists.' );
         }
 
         return [
@@ -214,7 +216,7 @@ namespace Support {
     }
 
     /**
-     * @param object|string $class
+     * @param class-string|object|string $class
      *
      * @return string
      */
@@ -226,8 +228,8 @@ namespace Support {
     /**
      * Returns the name of an object or callable.
      *
-     * @param mixed $from
-     * @param bool  $validate [optional] ensure the `class_exists`
+     * @param callable $from
+     * @param bool     $validate [optional] ensure the `class_exists`
      *
      * @return ($validate is true ? class-string : string)
      */
@@ -251,16 +253,16 @@ namespace Support {
 
         // Check existence if $validate is true
         if ( $validate && ! \class_exists( $class ) ) {
-            throw new \InvalidArgumentException( message: 'Class '.$class.' does not exists.' );
+            throw new \InvalidArgumentException( message : 'Class '.$class.' does not exists.' );
         }
 
         return $class;
     }
 
     /**
-     * @param class-string|object $class     Check if this class uses a given Trait
-     * @param class-string|object $trait     The Trait to check against
-     * @param bool                $recursive [false] Also check for Traits using Traits
+     * @param class-string|object|string $class     Check if this class uses a given Trait
+     * @param class-string|object|string $trait     The Trait to check against
+     * @param bool                       $recursive [false] Also check for Traits using Traits
      *
      * @return bool
      */
@@ -282,7 +284,7 @@ namespace Support {
     }
 
     /**
-     * @param class-string|object $class
+     * @param class-string|object|string $class
      *
      * @return array<string, class-string>
      */
@@ -294,7 +296,7 @@ namespace Support {
 
         $traits = \class_uses( $class );
 
-        foreach ( \class_parents( $class ) as $parent ) {
+        foreach ( \class_parents( $class ) ?: [] as $parent ) {
             $traits += \class_uses( $parent );
         }
 
@@ -327,12 +329,12 @@ namespace Support {
     /**
      * # Get all the classes, traits, and interfaces used by a class.
      *
-     * @param object|string $class
-     * @param bool          $includeSelf
-     * @param bool          $includeInterface
-     * @param bool          $includeTrait
-     * @param bool          $namespace
-     * @param bool          $details
+     * @param class-string|object|string $class
+     * @param bool                       $includeSelf
+     * @param bool                       $includeInterface
+     * @param bool                       $includeTrait
+     * @param bool                       $namespace
+     * @param bool                       $details
      *
      * @return array<array-key, string>
      */
@@ -588,7 +590,7 @@ namespace String {
 
     use Support\Normalize;
     use function Support\getProjectRootDirectory;
-    use const Support\{EMPTY_STRING, ENCODE_ESCAPE_JSON, FILTER_STRING_COMMENTS,  URL_SAFE_CHARACTERS_UNICODE};
+    use const Support\{EMPTY_STRING, ENCODE_ESCAPE_JSON, FILTER_STRING_COMMENTS, URL_SAFE_CHARACTERS_UNICODE};
 
     // <editor-fold desc="Key Functions">
 
@@ -596,7 +598,9 @@ namespace String {
      * # Generate a deterministic key from a value.
      *
      *  - `$value` will be stringified using `json_encode()`.
-     * @param  mixed  ...$value
+     *
+     * @param mixed ...$value
+     *
      * @return string
      */
     function encodeKey( mixed ...$value ) : string
@@ -839,7 +843,6 @@ namespace String {
      */
     function filterUrl( null|string|\Stringable $string, bool $preserveTags = false ) : string
     {
-
         // Can not be null or an empty string
         if ( ! $string = (string) $string ) {
             return EMPTY_STRING;
@@ -900,8 +903,11 @@ namespace String {
         return \implode( '', \array_map( static fn( $char ) => '\\'.$char, \str_split( $string ) ) );
     }
 
-    function stripTags( null|string|\Stringable $string, string $replacement = ' ', ?string ...$allowed_tags ) : string
-    {
+    function stripTags(
+        null|string|\Stringable $string,
+        string                  $replacement = ' ',
+        ?string              ...$allowed_tags,
+    ) : string {
         return \str_replace(
             '  ',
             ' ',
@@ -952,7 +958,7 @@ namespace String {
         $limit  = \PHP_MAXPATHLEN - 2;
         $length = \strlen( $string );
         if ( $length > $limit ) {
-            throw new \LengthException( $caller ? $caller." resulted in a {$length} character string, exceeding the {$limit} limit." : "The provided string is {$length} characters long, exceeding the {$limit} limit." );
+            throw new \LengthException( $caller ? $caller." resulted in a {$length} character string, exceeding the {$limit} limit." : "The provided string is {$length} characters long, exceeding the {$limit} limit.");
         }
     }
 }
