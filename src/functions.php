@@ -55,7 +55,7 @@ namespace Support {
             return new \DateTimeImmutable( $datetime, $timezone ?: null );
         }
         catch ( \Exception $exception ) {
-            throw new \InvalidArgumentException( message : 'Unable to create a new DateTimeImmutable object: '.$exception->getMessage(), code    : 500, previous : $exception);
+            throw new \InvalidArgumentException( message : 'Unable to create a new DateTimeImmutable object: '.$exception->getMessage(), code    : 500, previous : $exception );
         }
     }
 
@@ -231,9 +231,9 @@ namespace Support {
      * @param callable $from
      * @param bool     $validate [optional] ensure the `class_exists`
      *
-     * @return ($validate is true ? class-string : string)
+     * @return ($validate is true ? ?class-string : ?string)
      */
-    function get_class_name( mixed $from, bool $validate = false ) : string
+    function get_class_name( mixed $from, bool $validate = false ) : ?string
     {
         // array callables [new SomeClass, 'method']
         if ( \is_array( $from ) && isset( $from[0] ) && \is_object( $from[0] ) ) {
@@ -246,7 +246,12 @@ namespace Support {
         }
 
         // The [callable] type should have been handled by the two previous checks
-        \assert( \is_string( $from ) );
+        if ( ! \is_string( $from ) ) {
+            if ( $validate ) {
+                throw new \InvalidArgumentException( __METHOD__.' was passed an unresolvable class of type '.\gettype( $from ).'.' );
+            }
+            return null;
+        }
 
         // Handle class strings
         $class = \str_contains( $from, '::' ) ? \explode( '::', $from, 2 )[0] : $from;
@@ -958,7 +963,7 @@ namespace String {
         $limit  = \PHP_MAXPATHLEN - 2;
         $length = \strlen( $string );
         if ( $length > $limit ) {
-            throw new \LengthException( $caller ? $caller." resulted in a {$length} character string, exceeding the {$limit} limit." : "The provided string is {$length} characters long, exceeding the {$limit} limit.");
+            throw new \LengthException( $caller ? $caller." resulted in a {$length} character string, exceeding the {$limit} limit." : "The provided string is {$length} characters long, exceeding the {$limit} limit." );
         }
     }
 }
