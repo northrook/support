@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Class;
+namespace Support;
 
 use BadMethodCallException;
 use LogicException;
@@ -11,15 +11,15 @@ use LogicException;
  * Designate a class as a Singleton.
  *
  * - Should implement the {@see \Interface\Singleton} interface.
- * - Store {@see static::$this} in the static property {@see Singleton::$__instance}.
- * - If this is done in the constructor, you should call {@see Singleton::instantiationCheck()} to prevent re-instantiation
+ * - Store {@see static::$this} in the static property {@see SingletonClass::$__instance}.
+ * - If this is done in the constructor, you should call {@see SingletonClass::instantiationCheck()} to prevent re-instantiation
  * - The constructor can be public.
- * - The {@see Singleton::getInstance()} method should be used to retrieve the instance.
+ * - The {@see SingletonClass::getInstance()} method should be used to retrieve the instance.
  *   It is protected by default, you can override the visibility if needed.
  *
  * @author Martin Nielsen <mn@northrook.com>
  */
-trait Singleton
+trait SingletonClass
 {
     private static ?self $__instance = null;
 
@@ -46,10 +46,10 @@ trait Singleton
     }
 
     /**
-     * Ensure the {@see Singleton::class} has not already been instantiated.
+     * Ensure the {@see SingletonClass::class} has not already been instantiated.
      *
-     * - Will check if {@see Singleton::$__instance} is set by default.
-     * - `$check` will validate against {@see Singleton::$__instance} by default.
+     * - Will check if {@see SingletonClass::$__instance} is set by default.
+     * - `$check` will validate against {@see SingletonClass::$__instance} by default.
      * - Set `$throwOnFail` to `true` to throw a {@see LogicException}.
      * - Set `$throwOnFail` to `false` to return `$check` as boolean.
      *
