@@ -55,7 +55,7 @@ namespace Support {
             return new \DateTimeImmutable( $datetime, $timezone ?: null );
         }
         catch ( \Exception $exception ) {
-            throw new \InvalidArgumentException( message : 'Unable to create a new DateTimeImmutable object: '.$exception->getMessage(), code    : 500, previous : $exception );
+            throw new \InvalidArgumentException( message : 'Unable to create a new DateTimeImmutable object: '.$exception->getMessage(), code    : 500, previous : $exception);
         }
     }
 
@@ -228,10 +228,10 @@ namespace Support {
     /**
      * Returns the name of an object or callable.
      *
-     * @param callable $from
-     * @param bool     $validate [optional] ensure the `class_exists`
+     * @param callable|callable-string|class-string|string $from
+     * @param bool                                         $validate [optional] ensure the `class_exists`
      *
-     * @return ($validate is true ? ?class-string : ?string)
+     * @return ($validate is true ? class-string : ?string)
      */
     function get_class_name( mixed $from, bool $validate = false ) : ?string
     {
@@ -248,7 +248,7 @@ namespace Support {
         // The [callable] type should have been handled by the two previous checks
         if ( ! \is_string( $from ) ) {
             if ( $validate ) {
-                throw new \InvalidArgumentException( __METHOD__.' was passed an unresolvable class of type '.\gettype( $from ).'.' );
+                throw new \InvalidArgumentException( __METHOD__.' was passed an unresolvable class of type '.\gettype( $from ).'.');
             }
             return null;
         }
@@ -963,7 +963,7 @@ namespace String {
         $limit  = \PHP_MAXPATHLEN - 2;
         $length = \strlen( $string );
         if ( $length > $limit ) {
-            throw new \LengthException( $caller ? $caller." resulted in a {$length} character string, exceeding the {$limit} limit." : "The provided string is {$length} characters long, exceeding the {$limit} limit." );
+            throw new \LengthException( $caller ? $caller." resulted in a {$length} character string, exceeding the {$limit} limit." : "The provided string is {$length} characters long, exceeding the {$limit} limit.");
         }
     }
 }

@@ -40,14 +40,14 @@ final class Normalize
 
         // Enforce characters
         if ( $throwOnIllegalCharacters && ! \preg_match( "/^[a-zA-Z0-9_\-{$separator}]+$/", $string ) ) {
-            throw new InvalidArgumentException( 'The provided string contains illegal characters. It must only accept ASCII letters, numbers, hyphens, and underscores.' );
+            throw new InvalidArgumentException( 'The provided string contains illegal characters. It must only accept ASCII letters, numbers, hyphens, and underscores.');
         }
 
         // Replace non-alphanumeric characters with the separator
         $string = (string) \preg_replace( "/[^a-z0-9{$separator}]+/i", $separator, $string );
 
         if ( $characterLimit && \strlen( $string ) >= $characterLimit ) {
-            throw new InvalidArgumentException( "The normalized key string exceeds the maximum length of '{$characterLimit}' characters." );
+            throw new InvalidArgumentException( "The normalized key string exceeds the maximum length of '{$characterLimit}' characters.");
         }
 
         // Remove leading and trailing separators
@@ -69,8 +69,8 @@ final class Normalize
      * // => '.\assets\scripts\example.js'
      * ```
      *
-     * @param string[] $string        the string to normalize
-     * @param bool     $trailingSlash append a trailing slash
+     * @param array<int, ?string>|string $string        the string to normalize
+     * @param bool                       $trailingSlash append a trailing slash
      */
     public static function path(
         string|array $string,
@@ -80,6 +80,11 @@ final class Normalize
 
         return $cache[\json_encode( [$string, $trailingSlash], ENCODE_PARTIAL_UNESCAPED_JSON )] ??= (
             static function() use ( $string, $trailingSlash ) : string {
+                // Remove null and empty parts
+                if ( \is_array( $string ) ) {
+                    $string = \array_filter( $string );
+                }
+
                 // Normalize separators
                 $normalize = \str_replace( ['\\', '/'], DIRECTORY_SEPARATOR, $string );
 
@@ -95,7 +100,7 @@ final class Normalize
                 $path = \implode( DIRECTORY_SEPARATOR, \array_filter( $exploded ) );
 
                 if ( ( $length = \strlen( $path ) ) > ( $limit = PHP_MAXPATHLEN - 2 ) ) {
-                    throw new LengthException( __FUNCTION__." resulted in a '{$length}' character string, exceeding the '{$limit}' limit." );
+                    throw new LengthException( __FUNCTION__." resulted in a '{$length}' character string, exceeding the '{$limit}' limit.");
                 }
 
                 // Preserve intended relative paths
