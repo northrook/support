@@ -265,6 +265,26 @@ namespace Support {
     }
 
     /**
+     * @param class-string|object|string $class     Check if this class implements a given Interface
+     * @param class-string|object|string $interface The Interface to check against
+     *
+     * @return bool
+     */
+    function implements_interface( string|object $class, string|object $interface ) : bool
+    {
+        if ( ! \class_exists( $class ) || ! \class_exists( $interface ) ) {
+            return false;
+        }
+        $interfaces = \class_implements( $class, true );
+
+        if ( ! $interface ) {
+            return false;
+        }
+
+        return \in_array( $interface, $interfaces, true );
+    }
+
+    /**
      * @param class-string|object|string $class     Check if this class uses a given Trait
      * @param class-string|object|string $trait     The Trait to check against
      * @param bool                       $recursive [false] Also check for Traits using Traits
