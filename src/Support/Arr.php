@@ -5,15 +5,49 @@ declare(strict_types=1);
 namespace Support;
 
 use JsonException;
+use InvalidArgumentException;
 
 use function Assert\{isEmpty, isIterable};
 
 final class Arr
 {
     public const int
-        FILTER_VALUE = 0,
-        FILTER_BOTH  = 1,
-        FILTER_KEY   = 2;
+        USE_VALUE = 0,
+        USE_BOTH  = 1,
+        USE_KEY   = 2;
+
+    /**
+     * @param array<array-key, mixed> $array
+     * @param mixed                   $match
+     * @param int<0,2>                $mode
+     *
+     * @return null|int|string
+     */
+    public static function search(
+        array $array,
+        mixed $match,
+        int   $mode = Arr::USE_VALUE,
+    ) : string|int|null {
+        foreach ( $array as $key => $value ) {
+            if ( \is_callable( $match ) && match ( $mode ) {
+                Arr::USE_VALUE => $match( $value ),
+                Arr::USE_KEY   => $match( $key ),
+                Arr::USE_BOTH  => $match( $value, $key ),
+            } ) {
+                return $key;
+            }
+
+            if ( $value === $match ) {
+                return $key;
+            }
+
+            if ( \is_array( $value ) ) {
+                return self::search( $value, $match, $mode );
+            }
+        }
+
+        return null;
+    }
 
     /**
      * Return the closest key or value that `$match` in the provided `$array`.
@@ -34,11 +68,17 @@ final class Arr
         // TODO : option to return key/value of match
         // TODO : return FALSE on no match
 
+        /** @var ?string $closest */
         $closest = null;
 
         foreach ( $array as $item ) {
-            \assert( \is_numeric( $match ) && \is_numeric( $item ) );
-            if ( null === $closest || \abs( $match - $closest ) > \abs( $item - $match ) ) {
+            if ( ! \is_numeric( $item ) ) {
+                throw new InvalidArgumentException( 'Array item must be numeric.' );
+            }
+            if ( null === $closest
+                 || \abs( (int) $match - (int) $closest )
+                    > \abs( (int) $item - (int) $match )
+            ) {
                 $closest = $item;
             }
         }
@@ -60,7 +100,7 @@ final class Arr
     public static function filter(
         array     $array,
         ?callable $callback = null,
-        int       $mode = Arr::FILTER_VALUE,
+        int       $mode = Arr::USE_VALUE,
     ) : array {
         $callback ??= static fn( $v ) => ! isEmpty( $v );
         return \array_filter( $array, $callback, $mode );
@@ -79,7 +119,7 @@ final class Arr
     public static function filterRecursive(
         array     $array,
         ?callable $callback = null,
-        int       $mode = Arr::FILTER_VALUE,
+        int       $mode = Arr::USE_VALUE,
     ) : array {
         foreach ( $array as $key => $value ) {
             if ( \is_array( $value ) ) {

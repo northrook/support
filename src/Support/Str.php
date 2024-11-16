@@ -99,7 +99,7 @@ class Str implements Stringable
 
         foreach ( $matches as $index => $match ) {
             $getNamed = static fn( $value, $key ) => \is_string( $key ) ? $value : false;
-            $named    = Arr::filter( $match, $getNamed, Arr::FILTER_BOTH );
+            $named    = Arr::filter( $match, $getNamed, Arr::USE_BOTH );
 
             if ( $named ) {
                 $matches[$index] = ['match' => \array_shift( $match ), ...$named];
