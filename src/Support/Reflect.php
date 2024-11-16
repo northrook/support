@@ -80,7 +80,7 @@ final class Reflect
      *
      * @return null|T
      */
-    public static function getAttribute( object|string|array $reflector, string $attribute ) : ?object
+    public static function getAttribute( object|string|array $reflector, string $attribute ) : mixed
     {
         if ( \is_array( $reflector ) ) {
             $reflector = self::method( $reflector[0], $reflector[1] );
@@ -89,8 +89,6 @@ final class Reflect
         if ( ! $reflector instanceof Reflector ) {
             $reflector = self::class( $reflector );
         }
-
-        \assert( $reflector instanceof Reflector );
 
         if ( ! \method_exists( $reflector, 'getAttributes' ) ) {
             throw new BadMethodCallException( "The passed reflector does not offer the 'getAttributes' method." );
