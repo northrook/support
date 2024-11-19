@@ -6,8 +6,6 @@ namespace Interface;
 
 use Stringable;
 
-/**
- */
 interface Printable extends Stringable
 {
     /**

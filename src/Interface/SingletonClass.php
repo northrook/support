@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Support;
+namespace Interface;
 
 use BadMethodCallException;
 use LogicException;
@@ -10,12 +10,14 @@ use LogicException;
 /**
  * Designate a class as a Singleton.
  *
- * - Should implement the {@see \Interface\Singleton} interface.
+ * - Should implement the {@see Singleton} interface.
  * - Store {@see static::$this} in the static property {@see SingletonClass::$__instance}.
  * - If this is done in the constructor, you should call {@see SingletonClass::instantiationCheck()} to prevent re-instantiation
  * - The constructor can be public.
  * - The {@see SingletonClass::getInstance()} method should be used to retrieve the instance.
  *   It is protected by default, you can override the visibility if needed.
+ *
+ * @phpstan-require-implements Singleton
  *
  * @author Martin Nielsen <mn@northrook.com>
  */
@@ -60,10 +62,10 @@ trait SingletonClass
      */
     final protected function instantiationCheck( ?bool $check = null, bool $throw = false ) : bool
     {
-        if ( ! $this instanceof \Interface\Singleton ) {
+        if ( ! $this instanceof Singleton ) {
             $class              = $this::class;
             $trait              = 'SingletonClass';
-            $singletonInterface = \Interface\Singleton::class;
+            $singletonInterface = Singleton::class;
             throw new BadMethodCallException( "{$class} is using the {$trait} trait, but does not implement the {$singletonInterface}.");
         }
 

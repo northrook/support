@@ -2,4 +2,6 @@
 
 namespace Interface;
 
-interface Singleton {}
+interface Singleton
+{
+}

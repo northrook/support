@@ -41,7 +41,7 @@ final class Arr
                 return $key;
             }
 
-            if ( \is_array( $value ) && self::search( $value, $match, $mode )) {
+            if ( \is_array( $value ) && self::search( $value, $match, $mode ) ) {
                 return $key;
             }
         }
