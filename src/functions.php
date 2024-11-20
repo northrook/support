@@ -55,7 +55,7 @@ namespace Support {
             return new \DateTimeImmutable( $datetime, $timezone ?: null );
         }
         catch ( \Exception $exception ) {
-            throw new \InvalidArgumentException( message : 'Unable to create a new DateTimeImmutable object: '.$exception->getMessage(), code    : 500, previous : $exception);
+            throw new \InvalidArgumentException( message : 'Unable to create a new DateTimeImmutable object: '.$exception->getMessage(), code    : 500, previous : $exception );
         }
     }
 
@@ -195,7 +195,7 @@ namespace Support {
             $class  = $callable[0];
             $method = $callable[1];
         }
-        elseif ( \is_string( $callable ) ) {
+        elseif ( \is_string( $callable ) && \str_contains( $callable, '::' ) ) {
             [$class, $method] = \explode( '::', $callable );
         }
         else {
@@ -248,7 +248,7 @@ namespace Support {
         // The [callable] type should have been handled by the two previous checks
         if ( ! \is_string( $from ) ) {
             if ( $validate ) {
-                throw new \InvalidArgumentException( __METHOD__.' was passed an unresolvable class of type '.\gettype( $from ).'.');
+                throw new \InvalidArgumentException( __METHOD__.' was passed an unresolvable class of type '.\gettype( $from ).'.' );
             }
             return null;
         }
@@ -265,14 +265,14 @@ namespace Support {
     }
 
     /**
-     * @param class-string|object|string $class     Check if this class implements a given Interface
-     * @param class-string|object|string $interface The Interface to check against
+     * @param class-string|string $class     Check if this class implements a given Interface
+     * @param class-string|string $interface The Interface to check against
      *
      * @return bool
      */
-    function implements_interface( string|object $class, string|object $interface ) : bool
+    function implements_interface( string $class, string $interface ) : bool
     {
-        if ( ! \class_exists( $class ) || ! \class_exists( $interface ) ) {
+        if ( ! \class_exists( $class ) || ! \interface_exists( $interface ) ) {
             return false;
         }
         $interfaces = \class_implements( $class, true );
@@ -983,7 +983,7 @@ namespace String {
         $limit  = \PHP_MAXPATHLEN - 2;
         $length = \strlen( $string );
         if ( $length > $limit ) {
-            throw new \LengthException( $caller ? $caller." resulted in a {$length} character string, exceeding the {$limit} limit." : "The provided string is {$length} characters long, exceeding the {$limit} limit.");
+            throw new \LengthException( $caller ? $caller." resulted in a {$length} character string, exceeding the {$limit} limit." : "The provided string is {$length} characters long, exceeding the {$limit} limit." );
         }
     }
 }
