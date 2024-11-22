@@ -11,6 +11,7 @@ namespace {
 
 namespace Support {
 
+    use InvalidArgumentException;
     use function Assert\{isIterable, isScalar};
 
     // <editor-fold desc="Constants">
@@ -55,7 +56,7 @@ namespace Support {
             return new \DateTimeImmutable( $datetime, $timezone ?: null );
         }
         catch ( \Exception $exception ) {
-            throw new \InvalidArgumentException( message : 'Unable to create a new DateTimeImmutable object: '.$exception->getMessage(), code    : 500, previous : $exception );
+            throw new InvalidArgumentException( message : 'Unable to create a new DateTimeImmutable object: '.$exception->getMessage(), code    : 500, previous : $exception);
         }
     }
 
@@ -106,6 +107,84 @@ namespace Support {
         )();
 
         return Normalize::path( [$path, $append] );
+    }
+
+    // </editor-fold>
+
+    // <editor-fold desc="Path">
+
+    /**
+     * @param string                        $path
+     * @param bool                          $throw     [false]
+     * @param null|InvalidArgumentException $exception
+     *
+     * @return bool
+     */
+    function path_readable(
+        string                   $path,
+        bool                     $throw = false,
+        InvalidArgumentException & $exception = null,
+    ) : bool {
+        $exception = null;
+
+        if ( ! \file_exists( $path ) ) {
+            $exception = new InvalidArgumentException(
+                'The file at "'.$path.'" does not exist.',
+                500,
+            );
+            if ( $throw ) {
+                throw $exception;
+            }
+        }
+
+        if ( ! \is_readable( $path ) ) {
+            $exception = new InvalidArgumentException(
+                \sprintf( 'The "%s" "%s" is not readable.', \is_dir( $path ) ? 'directory' : 'file', $path ),
+                500,
+            );
+            if ( $throw ) {
+                throw $exception;
+            }
+        }
+
+        return ! $exception;
+    }
+
+    /**
+     * @param string                        $path
+     * @param bool                          $throw     [false]
+     * @param null|InvalidArgumentException $exception
+     *
+     * @return bool
+     */
+    function path_writable(
+        string                   $path,
+        bool                     $throw = false,
+        InvalidArgumentException & $exception = null,
+    ) : bool {
+        $exception = null;
+
+        if ( ! \file_exists( $path ) ) {
+            $exception = new InvalidArgumentException(
+                'The file at "'.$path.'" does not exist.',
+                500,
+            );
+            if ( $throw ) {
+                throw $exception;
+            }
+        }
+
+        if ( ! \is_writable( $path ) ) {
+            $exception = new InvalidArgumentException(
+                \sprintf( 'The "%s" "%s" is not writable.', \is_dir( $path ) ? 'directory' : 'file', $path ),
+                500,
+            );
+            if ( $throw ) {
+                throw $exception;
+            }
+        }
+
+        return ! $exception;
     }
 
     // </editor-fold>
@@ -199,14 +278,14 @@ namespace Support {
             [$class, $method] = \explode( '::', $callable );
         }
         else {
-            throw new \InvalidArgumentException( 'The provided callable must be a string or an array.' );
+            throw new InvalidArgumentException( 'The provided callable must be a string or an array.' );
         }
 
         \assert( \is_string( $class ) && \is_string( $method ) );
 
         // Check existence if $validate is true
         if ( $validate && ! \class_exists( $class ) ) {
-            throw new \InvalidArgumentException( message : 'Class '.$class.' does not exists.' );
+            throw new InvalidArgumentException( message : 'Class '.$class.' does not exists.' );
         }
 
         return [
@@ -248,7 +327,7 @@ namespace Support {
         // The [callable] type should have been handled by the two previous checks
         if ( ! \is_string( $from ) ) {
             if ( $validate ) {
-                throw new \InvalidArgumentException( __METHOD__.' was passed an unresolvable class of type '.\gettype( $from ).'.' );
+                throw new InvalidArgumentException( __METHOD__.' was passed an unresolvable class of type '.\gettype( $from ).'.');
             }
             return null;
         }
@@ -258,7 +337,7 @@ namespace Support {
 
         // Check existence if $validate is true
         if ( $validate && ! \class_exists( $class ) ) {
-            throw new \InvalidArgumentException( message : 'Class '.$class.' does not exists.' );
+            throw new InvalidArgumentException( message : 'Class '.$class.' does not exists.' );
         }
 
         return $class;
@@ -983,7 +1062,7 @@ namespace String {
         $limit  = \PHP_MAXPATHLEN - 2;
         $length = \strlen( $string );
         if ( $length > $limit ) {
-            throw new \LengthException( $caller ? $caller." resulted in a {$length} character string, exceeding the {$limit} limit." : "The provided string is {$length} characters long, exceeding the {$limit} limit." );
+            throw new \LengthException( $caller ? $caller." resulted in a {$length} character string, exceeding the {$limit} limit." : "The provided string is {$length} characters long, exceeding the {$limit} limit.");
         }
     }
 }
