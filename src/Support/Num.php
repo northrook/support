@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Support;
 
+use InvalidArgumentException;
+
 final class Num
 {
     /**
@@ -65,6 +67,25 @@ final class Num
             return 0;
         }
         return (float) \number_format( ( $from - $to ) / $from * 100, 2 );
+    }
+
+    public static function pad( int|float $number, int|string $pad, bool $prepend = false ) : int|string
+    {
+        $float = \is_float( $number );
+
+        $number = (string) $number;
+        $pad    = (string) $pad;
+
+        if ( \ctype_digit( $pad ) ) {
+            throw new InvalidArgumentException( 'Pad must be a number.' );
+        }
+
+        $length = \strlen( $number.$pad );
+        $type   = ( $prepend ? STR_PAD_LEFT : STR_PAD_RIGHT );
+
+        $number = \str_pad( $number, $length, $pad, $type );
+
+        return $float ? $number : (int) $number;
     }
 
     /**
