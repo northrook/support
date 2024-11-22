@@ -56,7 +56,7 @@ namespace Support {
             return new \DateTimeImmutable( $datetime, $timezone ?: null );
         }
         catch ( \Exception $exception ) {
-            throw new InvalidArgumentException( message : 'Unable to create a new DateTimeImmutable object: '.$exception->getMessage(), code    : 500, previous : $exception);
+            throw new InvalidArgumentException( message : 'Unable to create a new DateTimeImmutable object: '.$exception->getMessage(), code    : 500, previous : $exception );
         }
     }
 
@@ -112,6 +112,59 @@ namespace Support {
     // </editor-fold>
 
     // <editor-fold desc="Path">
+
+    /**
+     * @param string                        $path
+     * @param bool                          $throw
+     * @param null|InvalidArgumentException $exception
+     *
+     * @return bool
+     */
+    function path_valid(
+        string                   $path,
+        bool                     $throw = false,
+        InvalidArgumentException & $exception = null,
+    ) : bool {
+        // Ensure we are not receiving any previously set exceptions
+        $exception = null;
+
+        // Check if path exists and is readable
+        $isReadable = \is_readable( $path );
+        $exists     = \file_exists( $path ) && $isReadable;
+
+        // Return early
+        if ( $exists ) {
+            return true;
+        }
+
+        // Determine path type
+        $type = \is_dir( $path ) ? 'dir' : ( \is_file( $path ) ? 'file' : false );
+
+        // Handle non-existent paths
+        if ( ! $type ) {
+            $exception = new InvalidArgumentException( "The '{$path}' does not exist." );
+            if ( $throw ) {
+                throw $exception;
+            }
+            return false;
+        }
+
+        $isWritable = \is_writable( $path );
+
+        $error = ( ! $isWritable && ! $isReadable ) ? ' is not readable nor writable.' : null;
+        $error ??= ( ! $isReadable ) ? ' not writable.' : null;
+        $error ??= ( ! $isReadable ) ? ' not unreadable.' : null;
+        $error ??= ' encountered a filesystem error. The cause could not be determined.';
+
+        // Create exception message
+        $exception = new InvalidArgumentException( "The path '{$path}' {$error}" );
+
+        if ( $throw ) {
+            throw $exception;
+        }
+
+        return false;
+    }
 
     /**
      * @param string                        $path
@@ -327,7 +380,7 @@ namespace Support {
         // The [callable] type should have been handled by the two previous checks
         if ( ! \is_string( $from ) ) {
             if ( $validate ) {
-                throw new InvalidArgumentException( __METHOD__.' was passed an unresolvable class of type '.\gettype( $from ).'.');
+                throw new InvalidArgumentException( __METHOD__.' was passed an unresolvable class of type '.\gettype( $from ).'.' );
             }
             return null;
         }
@@ -1062,7 +1115,7 @@ namespace String {
         $limit  = \PHP_MAXPATHLEN - 2;
         $length = \strlen( $string );
         if ( $length > $limit ) {
-            throw new \LengthException( $caller ? $caller." resulted in a {$length} character string, exceeding the {$limit} limit." : "The provided string is {$length} characters long, exceeding the {$limit} limit.");
+            throw new \LengthException( $caller ? $caller." resulted in a {$length} character string, exceeding the {$limit} limit." : "The provided string is {$length} characters long, exceeding the {$limit} limit." );
         }
     }
 }
