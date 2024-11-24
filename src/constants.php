@@ -32,13 +32,6 @@ namespace Time {
 
 }
 
-namespace Cache {
-    const DISABLED  = -2;
-    const EPHEMERAL = -1;
-    const AUTO      = null;
-    const FOREVER   = 0;
-}
-
 /**
  * HTTP response codes.
  *

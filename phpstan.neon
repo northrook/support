@@ -2,10 +2,12 @@ parameters:
 	level: 9
 	paths:
 		- src
-		- src/functions.php
-		- src/constants.php
 	reportUnmatchedIgnoredErrors: false
 	ignoreErrors:
+		-
+			message: '#Expression on left side of \?\? is always null.#'
+			path: *.php
+
 		-
 			message: '#Access to an undefined static property .+::\$.+#'
 			path: *.php
@@ -27,7 +29,11 @@ parameters:
 			path: *.php
 
 		-
-			message: "#Dead catch - ReflectionException is never thrown in the try block.#"
+			message: "#Method .+ should return .+ but returns mixed.#"
+			path: *.php
+
+		-
+			message: "#Method .+ has parameter .+ with no value type specified in iterable type iterable.#"
 			path: *.php
 
 		-

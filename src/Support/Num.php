@@ -76,7 +76,7 @@ final class Num
         $number = (string) $number;
         $pad    = (string) $pad;
 
-        if ( \ctype_digit( $pad ) ) {
+        if ( ! \ctype_digit( $pad ) ) {
             throw new InvalidArgumentException( 'Pad must be a number.' );
         }
 

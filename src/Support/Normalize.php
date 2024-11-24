@@ -6,6 +6,7 @@ namespace Support;
 
 use InvalidArgumentException;
 use LengthException;
+use function Cache\memoize;
 use const PHP_MAXPATHLEN;
 
 final class Normalize
@@ -69,39 +70,38 @@ final class Normalize
      * // => '.\assets\scripts\example.js'
      * ```
      *
-     * @param array<int, ?string>|string $string        the string to normalize
+     * @param array<int, ?string>|string $path          the string to normalize
      * @param bool                       $trailingSlash append a trailing slash
      */
     public static function path(
-        string|array $string,
+        string|array $path,
         bool         $trailingSlash = false,
     ) : string {
-        static $cache = [];
-
-        return $cache[\json_encode( [$string, $trailingSlash], ENCODE_PARTIAL_UNESCAPED_JSON )] ??= (
-            static function() use ( $string, $trailingSlash ) : string {
+        return memoize(
+            function() use ( $path, $trailingSlash ) : string {
                 // Remove null and empty parts
-                if ( \is_array( $string ) ) {
-                    $string = \array_filter( $string );
-                }
+                $filtered = \array_filter(
+                    (array) $path,
+                    static function( $segment ) {
+                        \assert(
+                            \is_string( $segment ) || \is_null( $segment ),
+                            'Each path segment must be a ?string.',
+                        );
+                        return $segment;
+                    },
+                );
 
                 // Normalize separators
-                $normalize = \str_replace( ['\\', '/'], DIRECTORY_SEPARATOR, $string );
+                $normalize = (array) \str_replace( ['\\', '/'], DIRECTORY_SEPARATOR, $filtered );
 
-                $isRelative = DIRECTORY_SEPARATOR === $normalize[0];
-
-                // Explode strings for separator deduplication
-                $exploded = \is_string( $normalize ) ? \explode( DIRECTORY_SEPARATOR, $normalize ) : $normalize;
+                // If the first character of the first segment is a separator, the path is considered relative
+                $isRelative = DIRECTORY_SEPARATOR === $normalize[0][0] ?? false;
 
                 // Ensure each part does not start or end with illegal characters
-                $exploded = \array_map( static fn( $item ) => \trim( $item, " \n\r\t\v\0\\/" ), $exploded );
+                $exploded = \array_map( static fn( $item ) => \trim( $item, " \n\r\t\v\0\\/" ), $normalize );
 
                 // Filter the exploded path, and implode using the directory separator
                 $path = \implode( DIRECTORY_SEPARATOR, \array_filter( $exploded ) );
-
-                if ( ( $length = \strlen( $path ) ) > ( $limit = PHP_MAXPATHLEN - 2 ) ) {
-                    throw new LengthException( __FUNCTION__." resulted in a '{$length}' character string, exceeding the '{$limit}' limit.");
-                }
 
                 // Preserve intended relative paths
                 if ( $isRelative ) {
@@ -114,25 +114,24 @@ final class Normalize
 
                 // Return with or without a $trailingSlash
                 return $trailingSlash ? $path.DIRECTORY_SEPARATOR : $path;
-            }
-        )();
+            },
+            \implode( ':', [...(array) $path, (int) $trailingSlash] ),
+        );
     }
 
     /**
-     * @param string[] $string        $string
-     * @param bool     $trailingSlash
+     * @param array<int, ?string>|string $path          the string to normalize
+     * @param bool                       $trailingSlash
      *
      * @return string
      */
     public static function url(
-        string|array $string,
+        string|array $path,
         bool         $trailingSlash = false,
     ) : string {
-        static $cache = [];
-
-        return $cache[\json_encode( [$string, $trailingSlash], 832 )] ??= (
-            static function() use ( $string, $trailingSlash ) : string {
-                $string = \is_array( $string ) ? \implode( '/', $string ) : $string;
+        return memoize(
+            function() use ( $path, $trailingSlash ) : string {
+                $string = \is_array( $path ) ? \implode( '/', $path ) : $path;
 
                 $protocol = '/';
                 $fragment = '';
@@ -189,7 +188,8 @@ final class Normalize
 
                 // Assemble the URL
                 return $protocol.$path.$query.$fragment;
-            }
-        )();
+            },
+            \implode( ':', [...(array) $path, (int) $trailingSlash] ),
+        );
     }
 }

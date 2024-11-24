@@ -9,6 +9,8 @@ use BadMethodCallException;
 use ReflectionException;
 use ReflectionMethod;
 use Reflector;
+use Closure;
+use ReflectionFunction;
 
 /**
  * Helper methods for the native {@see Reflector} API.
@@ -59,6 +61,21 @@ final class Reflect
                 return $class->getMethod( $method );
             }
             return new ReflectionMethod( $class, $method );
+        }
+        catch ( ReflectionException $exception ) {
+            throw new BadMethodCallException( $exception->getMessage(), 500, $exception );
+        }
+    }
+
+    /**
+     * @param callable-string|Closure $function
+     *
+     * @return ReflectionFunction
+     */
+    public static function function( callable|Closure $function ) : ReflectionFunction
+    {
+        try {
+            return new ReflectionFunction( $function );
         }
         catch ( ReflectionException $exception ) {
             throw new BadMethodCallException( $exception->getMessage(), 500, $exception );
