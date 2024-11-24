@@ -12,6 +12,7 @@ namespace {
 namespace Support {
 
     use InvalidArgumentException;
+    use function Cache\memoize;
     use function Assert\{isIterable, isScalar};
 
     // <editor-fold desc="Constants">
@@ -56,7 +57,7 @@ namespace Support {
             return new \DateTimeImmutable( $datetime, $timezone ?: null );
         }
         catch ( \Exception $exception ) {
-            throw new InvalidArgumentException( message : 'Unable to create a new DateTimeImmutable object: '.$exception->getMessage(), code    : 500, previous : $exception );
+            throw new InvalidArgumentException( message : 'Unable to create a new DateTimeImmutable object: '.$exception->getMessage(), code    : 500, previous : $exception);
         }
     }
 
@@ -64,31 +65,34 @@ namespace Support {
      * Retrieves the project root directory.
      *
      * - This function assumes the Composer directory is present in the project root.
-     * - The return is cached for this process.
+     * - The return is cached using {@see \Cache\memoize()}.
+     *
+     * @param ?string $append
      *
      * @return string
      */
-    function getProjectRootDirectory() : string
+    function getProjectRootDirectory( ?string $append = null ) : string
     {
-        static $projectRoot;
-
-        return $projectRoot ??= (
+        return memoize(
             static function() : string {
                 // Get an array of each directory leading to this file
                 $explodeCurrentDirectory = \explode( \DIRECTORY_SEPARATOR, __DIR__ );
-                $vendorDirectory         = \array_slice( $explodeCurrentDirectory, 0, -4 );
+                dump( 'check for vendor value at appropriate depth', $explodeCurrentDirectory );
+                $vendorDirectory = \array_slice( $explodeCurrentDirectory, 0, -4 );
+                dump( $vendorDirectory );
 
-                // Implode and return the $projectRoot path
-                return \implode( \DIRECTORY_SEPARATOR, $vendorDirectory );
-            }
-        )();
+                // Normalize and return the $projectRoot path
+                return Normalize::path( $vendorDirectory );
+            },
+            __FUNCTION__,
+        );
     }
 
     /**
      * Retrieves the system temp directory for this project.
      *
      * - A directory is named using a hash based on the projectRootDirectory.
-     * - The return is cached for this process.
+     * - The return is cached using {@see \Cache\memoize()}.
      *
      * @param ?string $append
      *
@@ -96,17 +100,15 @@ namespace Support {
      */
     function getSystemCacheDirectory( ?string $append = null ) : string
     {
-        static $systemCache;
-        $path = $systemCache ??= (
-            static function() : string {
+        return memoize(
+            static function() use ( $append ) : string {
                 $tempDir = \sys_get_temp_dir();
                 $dirHash = \hash( 'xxh3', getProjectRootDirectory() );
 
-                return "{$tempDir}/{$dirHash}";
-            }
-        )();
-
-        return Normalize::path( [$path, $append] );
+                return Normalize::path( [$tempDir, $dirHash, $append] );
+            },
+            __FUNCTION__.$append,
+        );
     }
 
     // </editor-fold>
@@ -380,7 +382,7 @@ namespace Support {
         // The [callable] type should have been handled by the two previous checks
         if ( ! \is_string( $from ) ) {
             if ( $validate ) {
-                throw new InvalidArgumentException( __METHOD__.' was passed an unresolvable class of type '.\gettype( $from ).'.' );
+                throw new InvalidArgumentException( __METHOD__.' was passed an unresolvable class of type '.\gettype( $from ).'.');
             }
             return null;
         }
@@ -407,7 +409,7 @@ namespace Support {
         if ( ! \class_exists( $class ) || ! \interface_exists( $interface ) ) {
             return false;
         }
-        $interfaces = \class_implements( $class, true );
+        $interfaces = \class_implements( $class );
 
         if ( ! $interface ) {
             return false;
@@ -846,6 +848,7 @@ namespace String {
         if ( ! $string = (string) $source ) {
             return EMPTY_STRING;
         }
+
         static $rootKey;
         $rootKey[$separator] ??= Normalize::key(
             [getProjectRootDirectory(), $fromRoot],
@@ -1115,7 +1118,7 @@ namespace String {
         $limit  = \PHP_MAXPATHLEN - 2;
         $length = \strlen( $string );
         if ( $length > $limit ) {
-            throw new \LengthException( $caller ? $caller." resulted in a {$length} character string, exceeding the {$limit} limit." : "The provided string is {$length} characters long, exceeding the {$limit} limit." );
+            throw new \LengthException( $caller ? $caller." resulted in a {$length} character string, exceeding the {$limit} limit." : "The provided string is {$length} characters long, exceeding the {$limit} limit.");
         }
     }
 }

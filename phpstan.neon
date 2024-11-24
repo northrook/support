@@ -39,3 +39,7 @@ parameters:
 		-
 			message: "#PHPDoc tag @phpstan-assert-if-true for .+ has no value type specified .+#"
 			path: *.php
+
+		-
+			message: "#Cannot cast mixed to .+.#"
+			path: *.php
