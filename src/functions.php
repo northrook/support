@@ -57,7 +57,8 @@ namespace Support {
             return new \DateTimeImmutable( $datetime, $timezone ?: null );
         }
         catch ( \Exception $exception ) {
-            throw new InvalidArgumentException( message : 'Unable to create a new DateTimeImmutable object: '.$exception->getMessage(), code    : 500, previous : $exception);
+            $message = 'Unable to create a new DateTimeImmutable object: '.$exception->getMessage();
+            throw new InvalidArgumentException( $message, 500, $exception );
         }
     }
 
@@ -75,14 +76,23 @@ namespace Support {
     {
         return memoize(
             static function() : string {
-                // Get an array of each directory leading to this file
-                $explodeCurrentDirectory = \explode( \DIRECTORY_SEPARATOR, __DIR__ );
-                dump( 'check for vendor value at appropriate depth', $explodeCurrentDirectory );
-                $vendorDirectory = \array_slice( $explodeCurrentDirectory, 0, -4 );
-                dump( $vendorDirectory );
+                // Split the current directory into an array of directory segments
+                $segments = \explode( \DIRECTORY_SEPARATOR, __DIR__ );
 
-                // Normalize and return the $projectRoot path
-                return Normalize::path( $vendorDirectory );
+                // Ensure the directory array has at least 5 segments and a valid vendor value
+                $validVendor = ( \count( $segments ) >= 5 && $segments[\count( $segments ) - 4] === 'vendor' );
+
+                if ( $validVendor ) {
+                    // Remove the last 4 segments (vendor, package name, and Composer structure)
+                    $rootSegments = \array_slice( $segments, 0, -4 );
+
+                    // Normalize and return the project path
+                    return Normalize::path( $rootSegments );
+                }
+
+                $message = __FUNCTION__.' was unable to locate the vendor directory. Current path: '.__DIR__;
+
+                throw new \BadFunctionCallException( $message );
             },
             __FUNCTION__,
         );
