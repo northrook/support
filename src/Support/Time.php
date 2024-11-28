@@ -47,6 +47,19 @@ final readonly class Time implements Stringable
         $this->datetime      = $this->dateTimeImmutable->format( $format ).' '.$this->timezone;
     }
 
+    /**
+     * @param DateTimeZone|string $timezone
+     * @param string              $format
+     *
+     * @return Time
+     */
+    public static function now(
+        string|DateTimeZone $timezone = 'UTC',
+        string              $format = Time::FORMAT_SORTABLE,
+    ) : Time {
+        return new self( 'now', $timezone, $format );
+    }
+
     private function wrapFormatted( string $string, ?string $classPrefix = null ) : string
     {
         $each = [];
@@ -139,7 +152,7 @@ final readonly class Time implements Stringable
     ) : void {
         try {
             $this->dateTimeImmutable ??= new DateTimeImmutable(
-                $dateTime instanceof DateTimeInterface ? '@'.(string) $dateTime->getTimestamp() : $dateTime,
+                $dateTime instanceof DateTimeInterface ? '@'.$dateTime->getTimestamp() : $dateTime,
                 $this::getTimezone( $timezone ),
             );
         }
@@ -148,7 +161,7 @@ final readonly class Time implements Stringable
         }
     }
 
-    public static function getTimezone( null|string|DateTimeZone $timezone = null ) : ?DateTimeZone
+    public static function getTimezone( null|string|DateTimeZone $timezone = null ) : DateTimeZone
     {
         if ( $timezone instanceof DateTimeZone ) {
             return $timezone;
