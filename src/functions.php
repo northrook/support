@@ -75,7 +75,7 @@ namespace Support {
     function getProjectRootDirectory( ?string $append = null ) : string
     {
         return memoize(
-            static function() : string {
+            static function() use ( $append ) : string {
                 // Split the current directory into an array of directory segments
                 $segments = \explode( \DIRECTORY_SEPARATOR, __DIR__ );
 
@@ -87,7 +87,7 @@ namespace Support {
                     $rootSegments = \array_slice( $segments, 0, -4 );
 
                     // Normalize and return the project path
-                    return Normalize::path( $rootSegments );
+                    return Normalize::path( [...$rootSegments, $append] );
                 }
 
                 $message = __FUNCTION__.' was unable to locate the vendor directory. Current path: '.__DIR__;
