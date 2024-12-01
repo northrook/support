@@ -20,6 +20,7 @@ final class Arr
      * @param array<array-key, mixed> $array
      * @param mixed                   $match
      * @param int<0,2>                $mode
+     * @param bool                    $last
      *
      * @return null|int|string
      */

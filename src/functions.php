@@ -80,19 +80,23 @@ namespace Support {
                 $segments = \explode( \DIRECTORY_SEPARATOR, __DIR__ );
 
                 // Ensure the directory array has at least 5 segments and a valid vendor value
-                $validVendor = ( \count( $segments ) >= 5 && $segments[\count( $segments ) - 4] === 'vendor' );
-
-                if ( $validVendor ) {
+                if ( ( \count( $segments ) >= 5 && $segments[\count( $segments ) - 4] === 'vendor' ) ) {
                     // Remove the last 4 segments (vendor, package name, and Composer structure)
                     $rootSegments = \array_slice( $segments, 0, -4 );
+                }
+                // Look for a src value
+                elseif ( \in_array( 'src', $segments, true ) ) {
+                    $srcKey = Arr::search( $segments, 'src' );
 
-                    // Normalize and return the project path
-                    return Normalize::path( [...$rootSegments, $append] );
+                    $rootSegments = \array_slice( $segments, 0, $srcKey );
+                }
+                else {
+                    $message = __FUNCTION__.' was unable to determine a valid root. Current path: '.__DIR__;
+                    throw new \BadFunctionCallException( $message );
                 }
 
-                $message = __FUNCTION__.' was unable to locate the vendor directory. Current path: '.__DIR__;
-
-                throw new \BadFunctionCallException( $message );
+                // Normalize and return the project path
+                return Normalize::path( [...$rootSegments, $append] );
             },
             __FUNCTION__,
         );
