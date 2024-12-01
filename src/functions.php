@@ -86,7 +86,7 @@ namespace Support {
                 }
                 // Look for a src value
                 elseif ( \in_array( 'src', $segments, true ) ) {
-                    $srcKey = Arr::search( $segments, 'src' );
+                    $srcKey = (int) Arr::search( $segments, 'src' );
 
                     $rootSegments = \array_slice( $segments, 0, $srcKey );
                 }
@@ -396,7 +396,8 @@ namespace Support {
         // The [callable] type should have been handled by the two previous checks
         if ( ! \is_string( $from ) ) {
             if ( $validate ) {
-                throw new InvalidArgumentException( __METHOD__.' was passed an unresolvable class of type '.\gettype( $from ).'.');
+                $message = __METHOD__.' was passed an unresolvable class of type '.\gettype( $from ).'.';
+                throw new InvalidArgumentException( $message );
             }
             return null;
         }
