@@ -2,4 +2,6 @@
 
 namespace Support;
 
-class Filesystem {}
+final class Filesystem
+{
+}
