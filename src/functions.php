@@ -908,6 +908,29 @@ namespace String {
     }
 
     /**
+     * Escapes specified substrings in a string with a `\`.
+     *
+     * Normalizes consecutive backslashes to a single backslash.
+     *
+     * @param string $string
+     * @param string ...$escape
+     *
+     * @return string
+     */
+    function escape( string $string, string ...$escape ) : string
+    {
+        foreach ( $escape as $substring ) {
+            $string = \str_replace( $substring, '\\'.$substring, $string );
+        }
+
+        if ( \str_contains( $string, '\\\\' ) ) {
+            return (string) \preg_replace( '#\\\\+#', '\\', $string );
+        }
+
+        return $string;
+    }
+
+    /**
      * Escapes string using {@see \htmlentities}.
      *
      * @param null|string|\Stringable $string
