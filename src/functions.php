@@ -374,6 +374,22 @@ namespace Support {
     }
 
     /**
+     * Returns a string of the `$class`, appended by the object_jid.
+     *
+     * ```
+     * \Namespace\ClassName::42
+     * ```
+     *
+     * @param object  $class
+     *
+     * @return string FQCN::#
+     */
+    function get_class_id( object $class ) : string
+    {
+        return $class::class.'::'.\spl_object_id( $class );
+    }
+
+    /**
      * Returns the name of an object or callable.
      *
      * @param callable|callable-string|class-string|string $from
@@ -762,6 +778,7 @@ namespace Assert {
 
 namespace String {
 
+    use JetBrains\PhpStorm\Deprecated;
     use Support\Normalize;
     use function Support\getProjectRootDirectory;
     use const Support\{EMPTY_STRING, ENCODE_ESCAPE_JSON, FILTER_STRING_COMMENTS, URL_SAFE_CHARACTERS_UNICODE};
@@ -917,6 +934,7 @@ namespace String {
      *
      * @return string
      */
+    #[Deprecated]
     function escape( string $string, string ...$escape ) : string
     {
         foreach ( $escape as $substring ) {

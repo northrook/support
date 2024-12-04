@@ -209,7 +209,6 @@ class Str implements Stringable
         bool   $first = true,
         bool   $includeSubstring = false,
     ) : array {
-
         $offset = $first ? \mb_strpos( $string, $substring ) : \mb_strrpos( $string, $substring );
 
         if ( false === $offset ) {
@@ -394,6 +393,29 @@ class Str implements Stringable
         }
 
         return $string.$separator.$with;
+    }
+
+    /**
+     * Escapes specified substrings in a string with a `\`.
+     *
+     * Normalizes consecutive backslashes to a single backslash.
+     *
+     * @param string $string
+     * @param string ...$escape
+     *
+     * @return string
+     */
+    public static function escape( string $string, string ...$escape ) : string
+    {
+        foreach ( $escape as $substring ) {
+            $string = \str_replace( $substring, '\\'.$substring, $string );
+        }
+
+        if ( \str_contains( $string, '\\\\' ) ) {
+            return (string) \preg_replace( '#\\\\+#', '\\', $string );
+        }
+
+        return $string;
     }
 
     /**
