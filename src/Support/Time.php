@@ -36,9 +36,9 @@ final readonly class Time implements Stringable
     public string $timezone;
 
     public function __construct(
-        string|DateTimeInterface $dateTime = 'now',
-        string|DateTimeZone      $timezone = 'UTC',
-        string                   $format = Time::FORMAT_SORTABLE,
+        int|string|DateTimeInterface $dateTime = 'now',
+        string|DateTimeZone          $timezone = 'UTC',
+        string                       $format = Time::FORMAT_SORTABLE,
     ) {
         $this->setDateTime( $dateTime, $timezone );
 
@@ -147,12 +147,20 @@ final readonly class Time implements Stringable
     }
 
     private function setDateTime(
-        string|DateTimeInterface $dateTime = 'now',
-        string|DateTimeZone      $timezone = 'UTC',
+        int|string|DateTimeInterface $dateTime = 'now',
+        string|DateTimeZone          $timezone = 'UTC',
     ) : void {
         try {
+            if ( $dateTime instanceof DateTimeInterface ) {
+                $dateTime = $dateTime->getTimestamp();
+            }
+
+            if ( \is_int( $dateTime ) ) {
+                $dateTime = '@'.$dateTime;
+            }
+
             $this->dateTimeImmutable ??= new DateTimeImmutable(
-                $dateTime instanceof DateTimeInterface ? '@'.$dateTime->getTimestamp() : $dateTime,
+                $dateTime,
                 $this::getTimezone( $timezone ),
             );
         }
