@@ -311,7 +311,7 @@ namespace Support {
     function booleanValues( array $array, bool $default = true ) : array
     {
         // Isolate the options
-        $array = \array_filter( $array, static fn( $value ) => \is_bool( $value ) || \is_null( $value ) );
+        $array = \array_filter( $array, static fn( $value ) => \is_null( $value ) || \is_bool( $value ) );
 
         // If any option is true, set all others to false
         if ( \in_array( true, $array, true ) ) {
@@ -380,7 +380,7 @@ namespace Support {
      * \Namespace\ClassName::42
      * ```
      *
-     * @param object  $class
+     * @param object $class
      *
      * @return string FQCN::#
      */
