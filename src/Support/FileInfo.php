@@ -9,6 +9,9 @@ use SplFileInfo, Override;
 use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
 use Stringable;
+use function Assert\isUrl;
+use InvalidArgumentException;
+use RuntimeException;
 
 class FileInfo extends SplFileInfo
 {
@@ -30,6 +33,25 @@ class FileInfo extends SplFileInfo
         return \strstr( parent::getFilename(), '.', true ) ?: parent::getFilename();
     }
 
+    final public function isUrl( ?string $protocol = null ) : bool
+    {
+        return isUrl( $this->getPathname(), $protocol );
+    }
+
+    #[Override]
+    final public function isReadable() : bool
+    {
+        if ( $this->isUrl() ) {
+            $isReadable = CURL::exists( $this->getPathname(), $error );
+            if ( $error ) {
+                throw new InvalidArgumentException( $error );
+            }
+            return $isReadable;
+        }
+
+        return parent::isReadable();
+    }
+
     final public function isDotFile() : bool
     {
         return \str_starts_with( $this->getBasename(), '.' ) && $this->isFile();
@@ -40,15 +62,24 @@ class FileInfo extends SplFileInfo
         return \str_contains( $this->getPath(), DIRECTORY_SEPARATOR.'.' );
     }
 
-    final public function getContents() : ?string
+    final public function getContents( bool $throwOnError = false ) : ?string
     {
-        $contents = \file_get_contents( $this->getPathname() );
-
-        if ( false === $contents ) {
+        if ( $this->isUrl() ) {
+            if ( $throwOnError ) {
+                $message = $this::class.'::getContents() only supports local files.';
+                $instead = 'Use '.CURL::class.'::fetch() instead.';
+                throw new InvalidArgumentException( "{$message} {$instead}" );
+            }
             return null;
         }
 
-        return $contents;
+        $contents = \file_get_contents( $this->getPathname() );
+
+        if ( false === $contents && $throwOnError ) {
+            throw new RuntimeException( 'Unable to read file: '.$this->getPathname() );
+        }
+
+        return $contents ?: null;
     }
 
     /**
