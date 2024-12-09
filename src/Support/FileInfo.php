@@ -21,7 +21,7 @@ class FileInfo extends SplFileInfo
     {
         $string = (string) $filename;
         if ( ! \str_contains( $string, '://' ) ) {
-            $string = \str_replace( ['\\', '/'], DIRECTORY_SEPARATOR, $string );
+            $string = Normalize::path( $string );
         }
         parent::__construct( $string );
     }

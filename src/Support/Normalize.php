@@ -81,7 +81,7 @@ final class Normalize
             function() use ( $path, $trailingSlash ) : string {
                 // Remove null and empty parts
                 $filtered = \array_filter(
-                    (array) $path,
+                    Arr::flatten( (array) $path ),
                     static function( $segment ) {
                         \assert(
                             \is_string( $segment ) || \is_null( $segment ),
@@ -97,11 +97,13 @@ final class Normalize
                 // If the first character of the first segment is a separator, the path is considered relative
                 $isRelative = DIRECTORY_SEPARATOR === $normalize[0][0] ?? false;
 
+                $exploded = \explode( DIRECTORY_SEPARATOR, \implode( DIRECTORY_SEPARATOR, $normalize ) );
+
                 // Ensure each part does not start or end with illegal characters
-                $exploded = \array_map( static fn( $item ) => \trim( $item, " \n\r\t\v\0\\/" ), $normalize );
+                $varified = \array_map( static fn( $item ) => \trim( $item, " \n\r\t\v\0\\/" ), $exploded );
 
                 // Filter the exploded path, and implode using the directory separator
-                $path = \implode( DIRECTORY_SEPARATOR, \array_filter( $exploded ) );
+                $path = \implode( DIRECTORY_SEPARATOR, \array_filter( $varified ) );
 
                 // Preserve intended relative paths
                 if ( $isRelative ) {

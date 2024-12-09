@@ -11,8 +11,8 @@ use SplFileInfo;
 
 final class FileScanner
 {
-    /** @var FileInfo[] */
-    private array $files;
+    /** @var FileInfo[]|string */
+    private array $files = [];
 
     /** @var null|positive-int */
     private ?int $lastModified = null;
@@ -55,6 +55,8 @@ final class FileScanner
      * @param bool                      $recursion
      * @param bool                      $dotDirectories
      * @param bool                      $dotFiles
+     * @param bool                      $asString
+     * @param bool                      $stringPath
      *
      * @return FileInfo[]
      */
@@ -64,10 +66,11 @@ final class FileScanner
         bool|int               $recursion = false,
         bool                   $dotDirectories = false,
         bool                   $dotFiles = false,
+        bool                   $asString = false,
     ) : array {
         $scanner = new self( $directory, $extension, $recursion, $dotDirectories, $dotFiles );
 
-        $scanner->scanDirectories( [$scanner, 'returnFileInfo'] );
+        $scanner->scanDirectories( $asString ? [$scanner, 'returnFilePath'] : [$scanner, 'returnFileInfo'] );
 
         return $scanner->files;
     }
@@ -165,6 +168,11 @@ final class FileScanner
     protected function returnFileInfo( FileInfo $fileInfo ) : void
     {
         $this->files[] = $fileInfo;
+    }
+
+    protected function returnFilePath( FileInfo $fileInfo ) : void
+    {
+        $this->files[] = (string) $fileInfo;
     }
 
     protected function matchExtension( SplFileInfo $fileInfo ) : bool
