@@ -19,7 +19,11 @@ class FileInfo extends SplFileInfo
 
     public function __construct( string|SplFileInfo|Stringable $filename )
     {
-        parent::__construct( (string) $filename );
+        $string = (string) $filename;
+        if ( ! \str_contains( $string, '://' ) ) {
+            $string = \str_replace( ['\\', '/'], DIRECTORY_SEPARATOR, $string );
+        }
+        parent::__construct( $string );
     }
 
     /**
