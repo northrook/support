@@ -109,7 +109,7 @@ class FileInfo extends SplFileInfo
     final public function save( mixed $content ) : bool
     {
         try {
-            $this::filesystem()->dumpFile( $this->getRealPath(), $content );
+            $this::filesystem()->dumpFile( $this->getPathname(), $content );
             return true;
         }
         catch ( IOException $exception ) {
