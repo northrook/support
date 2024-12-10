@@ -42,6 +42,11 @@ class FileInfo extends SplFileInfo
         return isUrl( $this->getPathname(), $protocol );
     }
 
+    final public function isPath() : bool
+    {
+        return isPath( $this->getPathname() );
+    }
+
     #[Override]
     final public function isReadable() : bool
     {

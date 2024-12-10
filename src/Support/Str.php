@@ -24,6 +24,7 @@ class Str implements Stringable
         return $this->string;
     }
 
+
     /**
      * Ensures appropriate string encoding.
      *

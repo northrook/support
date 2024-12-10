@@ -130,6 +130,84 @@ namespace Support {
     // <editor-fold desc="Path">
 
     /**
+     * Checks if a given value has a `URL` structure.
+     *
+     * ⚠️ Does **NOT** validate the URL in any capacity!
+     *
+     * @param mixed   $value
+     * @param ?string $requiredProtocol
+     *
+     * @return bool
+     */
+    function isUrl( mixed $value, ?string $requiredProtocol = null ) : bool
+    {
+        // Stringify scalars and Stringable objects
+        $string = isScalar( $value ) ? \trim( (string) $value ) : false;
+
+        // Can not be an empty string
+        if ( ! $string ) {
+            return false;
+        }
+
+        // Must not start with a number
+        if ( \is_numeric( $string[0] ) ) {
+            return false;
+        }
+
+        /**
+         * Does the string resemble a URL-like structure?
+         *
+         * Ensures the string starts with a schema-like substring, and has a real-ish domain extension.
+         *
+         * - Will gladly accept bogus strings like `not-a-schema://d0m@!n.tld/`
+         */
+        if ( ! \preg_match( '#^([\w\-+]*?[:/]{2}).+\.[a-z0-9]{2,}#m', $string ) ) {
+            return false;
+        }
+
+        // Check for required protocol if requested
+        return ! ( $requiredProtocol && ! \str_starts_with( $string, \rtrim( $requiredProtocol, ':/' ).'://' ) );
+    }
+
+    /**
+     * Checks if a given value has a `path` structure.
+     *
+     * ⚠️ Does **NOT** validate the `path` in any capacity!
+     *
+     * @param mixed  $value
+     * @param string $contains [..] optional `str_contains` check
+     *
+     * @return bool
+     */
+    function isPath( mixed $value, string $contains = '..' ) : bool
+    {
+        // Stringify scalars and Stringable objects
+        $string = isScalar( $value ) ? \trim( (string) $value ) : false;
+
+        // Must be at least two characters long to be a path string
+        if ( ! $string || \strlen( $string ) < 2 ) {
+            return false;
+        }
+
+        // One or more slashes indicate this could be a path string
+        if ( \str_contains( $string, '/' ) || \str_contains( $string, '\\' ) ) {
+            return true;
+        }
+
+        // Any periods that aren't in the first 3 characters indicate this could be a `path/file.ext`
+        if ( \strrpos( $string, '.' ) > 2 ) {
+            return true;
+        }
+
+        // Indicates this could be a `.hidden` path
+        if ( '.' === $string[0] && \ctype_alpha( $string[1] ) ) {
+            return true;
+        }
+
+        return \str_contains( $string, $contains );
+    }
+
+    /**
      * @param string                        $path
      * @param bool                          $throw
      * @param null|InvalidArgumentException $exception
@@ -311,7 +389,7 @@ namespace Support {
     function booleanValues( array $array, bool $default = true ) : array
     {
         // Isolate the options
-        $array = \array_filter( $array, static fn( $value ) => \is_null( $value ) || \is_bool( $value ) );
+        $array = \array_filter( $array, static fn( $value ) => \is_bool( $value ) );
 
         // If any option is true, set all others to false
         if ( \in_array( true, $array, true ) ) {
@@ -320,7 +398,7 @@ namespace Support {
 
         // If any option is false, set all others to true
         if ( \in_array( false, $array, true ) ) {
-            return \array_map( static fn( $option ) => false !== $option, $array );
+            return \array_map( static fn( $option ) => false != $option, $array );
         }
 
         // If none are true or false, set all to the default
@@ -747,32 +825,9 @@ namespace Assert {
      */
     function isUrl( mixed $value, ?string $requiredProtocol = null ) : bool
     {
-        // Stringify scalars and Stringable objects
-        $string = isScalar( $value ) ? \trim( (string) $value ) : false;
+        trigger_deprecation( '\\Assert\\isUrl()', '@dev', 'Use "\\Support\\isUrl()" instead.' );
 
-        // Can not be an empty string
-        if ( ! $string ) {
-            return false;
-        }
-
-        // Must not start with a number
-        if ( \is_numeric( $string[0] ) ) {
-            return false;
-        }
-
-        /**
-         * Does the string resemble a URL-like structure?
-         *
-         * Ensures the string starts with a schema-like substring, and has a real-ish domain extension.
-         *
-         * - Will gladly accept bogus strings like `not-a-schema://d0m@!n.tld/`
-         */
-        if ( ! \preg_match( '#^([\w\-+]*?[:/]{2}).+\.[a-z0-9]{2,}#m', $string ) ) {
-            return false;
-        }
-
-        // Check for required protocol if requested
-        return ! ( $requiredProtocol && ! \str_starts_with( $string, \rtrim( $requiredProtocol, ':/' ).'://' ) );
+        return \Support\isUrl( $value, $requiredProtocol );
     }
 }
 
@@ -1174,7 +1229,14 @@ namespace String {
         $limit  = \PHP_MAXPATHLEN - 2;
         $length = \strlen( $string );
         if ( $length > $limit ) {
-            throw new \LengthException( $caller ? $caller." resulted in a {$length} character string, exceeding the {$limit} limit." : "The provided string is {$length} characters long, exceeding the {$limit} limit.");
+            if ( $caller ) {
+                $message = $caller." resulted in a {$length} character string, exceeding the {$limit} limit.";
+            }
+            else {
+                $message = "The provided string is {$length} characters long, exceeding the {$limit} limit.";
+            }
+
+            throw new \LengthException( $message );
         }
     }
 }
