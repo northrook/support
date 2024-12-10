@@ -86,6 +86,17 @@ class FileInfo extends SplFileInfo
         return $contents ?: null;
     }
 
+    final public function exists( bool $throwOnError = false ) : bool
+    {
+        $exists = \file_exists( $this->getPathname() );
+
+        if ( false === $exists && $throwOnError ) {
+            throw new RuntimeException( 'Unable to read file: '.$this->getPathname() );
+        }
+
+        return $exists;
+    }
+
     /**
      * Atomically dumps content into a file.
      *
