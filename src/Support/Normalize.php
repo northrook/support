@@ -135,6 +135,9 @@ final class Normalize
             function() use ( $path, $trailingSlash ) : string {
                 $string = \is_array( $path ) ? \implode( '/', $path ) : $path;
 
+                // Normalize slashes
+                $string = \str_replace( ['\\', '/'], '/', $string );
+
                 $protocol = '/';
                 $fragment = '';
                 $query    = '';
