@@ -126,6 +126,11 @@ final class FileScanner
     protected function scanDirectories( callable $action ) : void
     {
         foreach ( self::getIterator( $this->directory, $this->recursion ) as $fileInfo ) {
+            // Prevent backtracking
+            if ( $fileInfo->getBasename() === '..' ) {
+                continue;
+            }
+
             $item = new FileInfo( $fileInfo );
 
             // Skip unless $dotDirectories === true

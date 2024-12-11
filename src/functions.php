@@ -508,8 +508,13 @@ namespace Support {
     }
 
     /**
-     * @param class-string|string $class     Check if this class implements a given Interface
-     * @param class-string|string $interface The Interface to check against
+     * @template T_Class of object
+     * @template T_Interface of object
+     *
+     * @param class-string<T_Class>|string     $class     Check if this class implements a given Interface
+     * @param class-string<T_Interface>|string $interface The Interface to check against
+     *
+     * @phpstan-assert-if-true class-string<T_Interface> $interface
      *
      * @return bool
      */
