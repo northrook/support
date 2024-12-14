@@ -41,14 +41,18 @@ final class Normalize
 
         // Enforce characters
         if ( $throwOnIllegalCharacters && ! \preg_match( "/^[a-zA-Z0-9_\-{$separator}]+$/", $string ) ) {
-            throw new InvalidArgumentException( 'The provided string contains illegal characters. It must only accept ASCII letters, numbers, hyphens, and underscores.');
+            throw new InvalidArgumentException(
+                'The provided string contains illegal characters. It must only accept ASCII letters, numbers, hyphens, and underscores.',
+            );
         }
 
         // Replace non-alphanumeric characters with the separator
         $string = (string) \preg_replace( "/[^a-z0-9{$separator}]+/i", $separator, $string );
 
         if ( $characterLimit && \strlen( $string ) >= $characterLimit ) {
-            throw new InvalidArgumentException( "The normalized key string exceeds the maximum length of '{$characterLimit}' characters.");
+            throw new InvalidArgumentException(
+                "The normalized key string exceeds the maximum length of '{$characterLimit}' characters.",
+            );
         }
 
         // Remove leading and trailing separators
@@ -80,16 +84,13 @@ final class Normalize
         return memoize(
             function() use ( $path, $trailingSlash ) : string {
                 // Remove null and empty parts
-                $filtered = \array_filter(
-                    Arr::flatten( (array) $path ),
-                    static function( $segment ) {
-                        \assert(
-                            \is_string( $segment ) || \is_null( $segment ),
-                            'Each path segment must be a ?string.',
-                        );
-                        return $segment;
-                    },
-                );
+                $filtered = Arr::filter( Arr::flatten( (array) $path ) );
+                // $filtered = \array_filter(
+                //     Arr::flatten( (array) $path ),
+                //     static function( $segment ) : bool {
+                //         return  \is_string( $segment ) || \is_null( $segment ) ;
+                //     },
+                // );
 
                 // Normalize separators
                 $normalize = (array) \str_replace( ['\\', '/'], DIRECTORY_SEPARATOR, $filtered );

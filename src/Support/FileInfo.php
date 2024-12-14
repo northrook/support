@@ -118,20 +118,29 @@ class FileInfo extends SplFileInfo
     }
 
     /**
-     * @param null|string $pattern
-     * @param int         $flags
+     * Perform one or more `glob(..)` patterns on {@see self::getPathname()}.
+     *
+     * Each matched result is `normalized`.
+     *
+     * @param string|string[] $pattern
+     * @param int             $flags
      *
      * @return string[]
      */
-    final public function glob( ?string $pattern = null, int $flags = 0 ) : array
-    {
-        if ( $pattern ) {
-            $pattern = \DIRECTORY_SEPARATOR.\ltrim( $pattern, '\\/' );
+    final public function glob(
+        string|array $pattern,
+        ?int         $flags = AUTO,
+    ) : array {
+        $flags = GLOB_NOSORT | GLOB_BRACE;
+        $path  = \rtrim( $this->getPathname(), '\\/' );
+        $glob  = [];
+
+        foreach ( (array) $pattern as $match ) {
+            $match  = \DIRECTORY_SEPARATOR.\ltrim( $match, '\\/' );
+            $glob[] = \glob( $path.$match, $flags ) ?: [];
         }
 
-        $pattern = \rtrim( $this->getPathname(), '\\/' ).$pattern;
-
-        return \glob( $pattern, $flags ) ?: [];
+        return \array_map( Normalize::path( ... ), ...$glob );
     }
 
     /**
