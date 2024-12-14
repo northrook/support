@@ -326,12 +326,12 @@ class Filesystem
      * @param int             $mode
      * @param bool            $returnPath
      *
-     * @return bool|string|string[]
+     * @return ($returnPath is true ? false|string|string[] : bool)
      */
     final public static function mkdir(
         string|array $dirs,
         int          $mode = 0777,
-        bool         $returnPath = true,
+        bool         $returnPath = false,
     ) : bool|string|array {
         try {
             self::get()->filesystem->mkdir( $dirs, $mode );

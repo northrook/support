@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace Support;
 
-use Northrook\Logger\Log;
 use SplFileInfo, Override;
 use Symfony\Component\Filesystem\Exception\IOException;
-use Symfony\Component\Filesystem\Filesystem;
 use Stringable;
 use function Assert\isUrl;
 use InvalidArgumentException;
@@ -15,8 +13,6 @@ use RuntimeException;
 
 class FileInfo extends SplFileInfo
 {
-    private static ?Filesystem $filesystem;
-
     public function __construct( string|SplFileInfo|Stringable $filename )
     {
         $string = (string) $filename;
@@ -113,15 +109,29 @@ class FileInfo extends SplFileInfo
      */
     final public function save( mixed $content ) : bool
     {
-        try {
-            $this::filesystem()->dumpFile( $this->getPathname(), $content );
-            return true;
-        }
-        catch ( IOException $exception ) {
-            Log::exception( $exception );
+        return Filesystem::save( $this->getPathname(), $content );
+    }
+
+    final public function mkdir( int $mode = 0777 ) : bool
+    {
+        return Filesystem::mkdir( $this->getPathname(), $mode );
+    }
+
+    /**
+     * @param null|string $pattern
+     * @param int         $flags
+     *
+     * @return string[]
+     */
+    final public function glob( ?string $pattern = null, int $flags = 0 ) : array
+    {
+        if ( $pattern ) {
+            $pattern = \DIRECTORY_SEPARATOR.\ltrim( $pattern, '\\/' );
         }
 
-        return false;
+        $pattern = \rtrim( $this->getPathname(), '\\/' ).$pattern;
+
+        return \glob( $pattern, $flags ) ?: [];
     }
 
     /**
@@ -134,14 +144,7 @@ class FileInfo extends SplFileInfo
      */
     final public function touch( ?int $time = null, ?int $atime = null ) : bool
     {
-        try {
-            $this::filesystem()->touch( $this->getRealPath(), $time, $atime );
-            return true;
-        }
-        catch ( IOException $exception ) {
-            Log::exception( $exception );
-        }
-        return false;
+        return Filesystem::touch( $this->getPathname(), $time, $atime );
     }
 
     /**
@@ -158,36 +161,6 @@ class FileInfo extends SplFileInfo
      */
     final public function copy( string $targetFile, bool $overwriteNewerFiles = false ) : bool
     {
-        try {
-            $this::filesystem()->copy( $this->getRealPath(), $targetFile, $overwriteNewerFiles );
-            return true;
-        }
-        catch ( IOException $exception ) {
-            Log::exception( $exception );
-        }
-
-        return false;
-    }
-
-    /**
-     * Returns a cached {@see static::$filesystem}.
-     *
-     * @return Filesystem
-     */
-    final protected static function filesystem() : Filesystem
-    {
-        return self::$filesystem ??= new Filesystem();
-    }
-
-    /**
-     * Simply unsets the {@see static::$filesystem} property.
-     *
-     * A new {@see Filesystem} instance will be created and cached when required.
-     *
-     * @return void
-     */
-    final public static function clearFilesystemCache() : void
-    {
-        self::$filesystem = null;
+        return Filesystem::copy( $this->getPathname(), $targetFile, $overwriteNewerFiles );
     }
 }
