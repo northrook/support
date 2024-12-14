@@ -839,7 +839,7 @@ namespace Assert {
 namespace String {
 
     use JetBrains\PhpStorm\Deprecated;
-    use Support\Normalize;
+    use Support\{Escape, Normalize};
     use function Support\getProjectRootDirectory;
     use const Support\{EMPTY_STRING, ENCODE_ESCAPE_JSON, FILTER_STRING_COMMENTS, URL_SAFE_CHARACTERS_UNICODE};
 
@@ -994,7 +994,7 @@ namespace String {
      *
      * @return string
      */
-    #[Deprecated]
+    #[Deprecated( replacement : '\Support\Escape::string()' )]
     function escape( string $string, string ...$escape ) : string
     {
         foreach ( $escape as $substring ) {
@@ -1016,6 +1016,7 @@ namespace String {
      *
      * @return string
      */
+    #[Deprecated( replacement : '\Support\Escape::html()' )]
     function escapeHtml( null|string|\Stringable $string, string $encoding = 'UTF-8' ) : string
     {
         // Can not be null or an empty string
@@ -1035,6 +1036,7 @@ namespace String {
      *
      * @see http://www.w3.org/TR/2006/WD-CSS21-20060411/syndata.html#q6 W3C CSS Characters and case reference
      */
+    #[Deprecated( replacement : '\Support\Escape::css()' )]
     function escapeCSS( null|string|\Stringable $string ) : string
     {
         trigger_deprecation( 'Northrook\\Functions', 'probe', __METHOD__ );
@@ -1055,6 +1057,7 @@ namespace String {
      *
      * @return string
      */
+    #[Deprecated( replacement : '\Support\Escape::js()' )]
     function escapeJS( mixed $value ) : string
     {
         trigger_deprecation( 'Northrook\\Functions', 'probe', __METHOD__ );
@@ -1080,6 +1083,7 @@ namespace String {
      *
      * @return string
      */
+    #[Deprecated( replacement : '\Support\Escape::elementAttribute()' )]
     function escapeHtmlAttr(
         null|string|\Stringable $string,
         bool                    $double = true,
@@ -1117,6 +1121,7 @@ namespace String {
      *
      * @return string
      */
+    #[Deprecated( replacement : '\Support\Escape::url( .., .., )' )]
     function filterUrl( null|string|\Stringable $string, bool $preserveTags = false ) : string
     {
         // Can not be null or an empty string
@@ -1150,6 +1155,7 @@ namespace String {
      *
      * @return string
      */
+    #[Deprecated( replacement : '\Support\Escape::url()' )]
     function escapeUrl( null|string|\Stringable $string ) : string
     {
         trigger_deprecation( 'Northrook\\Functions', 'probing', __METHOD__ );
@@ -1174,6 +1180,7 @@ namespace String {
      *
      * @return string
      */
+    #[Deprecated( replacement : '\Support\Escape::each()' )]
     function escapeCharacters( string $string ) : string
     {
         return \implode( '', \array_map( static fn( $char ) => '\\'.$char, \str_split( $string ) ) );

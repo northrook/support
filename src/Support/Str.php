@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Support;
 
-use JetBrains\PhpStorm\Language;
+use JetBrains\PhpStorm\{Deprecated, Language};
 use Stringable;
 use const ENCODING;
 
@@ -23,7 +23,6 @@ class Str implements Stringable
     {
         return $this->string;
     }
-
 
     /**
      * Ensures appropriate string encoding.
@@ -396,16 +395,7 @@ class Str implements Stringable
         return $string.$separator.$with;
     }
 
-    /**
-     * Escapes specified substrings in a string with a `\`.
-     *
-     * Normalizes consecutive backslashes to a single backslash.
-     *
-     * @param string $string
-     * @param string ...$escape
-     *
-     * @return string
-     */
+    #[Deprecated( replacement : '\Support\Escape::string()' )]
     public static function escape( string $string, string ...$escape ) : string
     {
         foreach ( $escape as $substring ) {
@@ -431,6 +421,7 @@ class Str implements Stringable
      *
      * @return string
      */
+    #[Deprecated( replacement : '\Support\Escape::each()' )]
     public static function eascapeEach( string $string ) : string
     {
         return \implode( '', \array_map( static fn( $char ) => '\\'.$char, \str_split( $string ) ) );
