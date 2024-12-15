@@ -124,7 +124,7 @@ final class Normalize
 
     /**
      * @param array<int, ?string>|string $path                 the string to normalize
-     * @param bool                       $substituteWhitespace
+     * @param false|string               $substituteWhitespace [-]
      * @param bool                       $trailingSlash
      *
      * @return string
@@ -143,7 +143,7 @@ final class Normalize
 
                 // Handle whitespace
                 if ( false !== $substituteWhitespace ) {
-                    $string = \preg_replace( '#\s+#', $substituteWhitespace, $string );
+                    $string = (string) \preg_replace( '#\s+#', $substituteWhitespace, $string );
                 }
 
                 $protocol = '/';
