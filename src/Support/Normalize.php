@@ -123,21 +123,28 @@ final class Normalize
     }
 
     /**
-     * @param array<int, ?string>|string $path          the string to normalize
+     * @param array<int, ?string>|string $path                 the string to normalize
+     * @param bool                       $substituteWhitespace
      * @param bool                       $trailingSlash
      *
      * @return string
      */
     public static function url(
         string|array $path,
+        false|string $substituteWhitespace = '-',
         bool         $trailingSlash = false,
     ) : string {
         return memoize(
-            function() use ( $path, $trailingSlash ) : string {
+            function() use ( $path, $substituteWhitespace, $trailingSlash ) : string {
                 $string = \is_array( $path ) ? \implode( '/', $path ) : $path;
 
                 // Normalize slashes
                 $string = \str_replace( ['\\', '/'], '/', $string );
+
+                // Handle whitespace
+                if ( false !== $substituteWhitespace ) {
+                    $string = \preg_replace( '#\s+#', $substituteWhitespace, $string );
+                }
 
                 $protocol = '/';
                 $fragment = '';
@@ -195,7 +202,7 @@ final class Normalize
                 // Assemble the URL
                 return $protocol.$path.$query.$fragment;
             },
-            \implode( ':', [...(array) $path, (int) $trailingSlash] ),
+            \implode( ':', [...(array) $path, (string) $substituteWhitespace, (int) $trailingSlash] ),
         );
     }
 }
