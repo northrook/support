@@ -12,13 +12,13 @@ use Attribute;
 #[Attribute( Attribute::TARGET_FUNCTION | Attribute::TARGET_METHOD )]
 final readonly class EntryPoint
 {
-    /** @var callable-string[]|class-string[]|string[] */
+    /** @var callable[]|string[] */
     public array $usedBy;
 
     /**
-     * @param callable-string|class-string|string ...$usedBy
+     * @param callable|callable-string|class-string|string ...$usedBy
      */
-    public function __construct( string ...$usedBy )
+    public function __construct( string|callable ...$usedBy )
     {
         $this->usedBy = $usedBy;
     }
