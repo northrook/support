@@ -12,14 +12,14 @@ use Attribute;
 #[Attribute( Attribute::TARGET_FUNCTION | Attribute::TARGET_METHOD )]
 final readonly class ExitPoint
 {
-    /** @var callable-string[]|class-string[]|string[] */
-    public array $usedBy;
+    /** @var list<array{0: class-string, 1: string}>|string[] */
+    public array $consumedBy;
 
     /**
-     * @param callable-string|class-string|string ...$consumedBy
+     * @param array{0: class-string, 1: string}|string ...$consumedBy
      */
-    public function __construct( string ...$consumedBy )
+    public function __construct( string|array ...$consumedBy )
     {
-        $this->usedBy = $consumedBy;
+        $this->consumedBy = $consumedBy;
     }
 }
