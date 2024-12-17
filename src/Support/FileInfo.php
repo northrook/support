@@ -22,6 +22,14 @@ class FileInfo extends SplFileInfo
         parent::__construct( $string );
     }
 
+    final public function append( string|Stringable $string ) : FileInfo
+    {
+        $path = \str_ends_with( $this->getPathname(), DIRECTORY_SEPARATOR )
+                ? $this->getPathname().$string
+                : $this->getPathname().DIRECTORY_SEPARATOR.$string;
+        return new self( $path );
+    }
+
     /**
      * Returns the `filename` without the extension.
      *
@@ -30,7 +38,7 @@ class FileInfo extends SplFileInfo
     #[Override]
     final public function getFilename() : string
     {
-        return \strstr( parent::getFilename(), '.', true ) ?: parent::getFilename();
+        return \strrchr( parent::getFilename(), '.', true ) ?: parent::getFilename();
     }
 
     final public function isUrl( ?string $protocol = null ) : bool

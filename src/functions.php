@@ -417,7 +417,7 @@ namespace Support {
      */
     function explode_class_callable( mixed $callable, bool $validate = false ) : array
     {
-        if ( \is_array( $callable ) && \count( $callable ) === 1 ) {
+        if ( \is_array( $callable ) && \count( $callable ) === 2 ) {
             $class  = $callable[0];
             $method = $callable[1];
         }
