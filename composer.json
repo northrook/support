@@ -24,8 +24,7 @@
     "php": ">=8.3",
     "ext-curl": "*",
     "northrook/cache": "@dev",
-    "symfony/filesystem": "@stable",
-    "northrook/filesystem": "dev-main"
+    "symfony/filesystem": "@stable"
   },
   "require-dev": {
     "northrook/php-cs": "dev-main",
