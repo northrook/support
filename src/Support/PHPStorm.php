@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Support;
 
+use JetBrains\PhpStorm\Deprecated;
 use JetBrains\PhpStorm\Language;
 use Throwable;
 use InvalidArgumentException;
@@ -20,6 +21,7 @@ final readonly class PHPStorm
         $this->projectRoot = new FileInfo( "{$projectRootDirectory}/.phpstorm.meta.php" );
     }
 
+    #[Deprecated]
     public static function generateMeta( ?string $projectRootDirectory = null ) : PHPStorm
     {
         return new self( $projectRootDirectory, __METHOD__ );
