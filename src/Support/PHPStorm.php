@@ -6,6 +6,7 @@ namespace Support;
 
 use JetBrains\PhpStorm\Language;
 use Throwable;
+use InvalidArgumentException;
 
 final readonly class PHPStorm
 {
@@ -25,7 +26,6 @@ final readonly class PHPStorm
     }
 
     /**
-     * @param string                                                            $name
      * @param array{0: class-string, 1: string}|callable|callable-string|string $functionReference
      * @param int                                                               $argument
      * @param ?string                                                           ...$values
@@ -34,7 +34,6 @@ final readonly class PHPStorm
      * @throws Throwable
      */
     public function stringValues(
-        string                $name,
         array|string|callable $functionReference,
         int                   $argument = 0,
         ?string            ...$values,
@@ -45,10 +44,15 @@ final readonly class PHPStorm
         }
         catch ( Throwable $exception ) {
             if ( ! \is_string( $functionReference ) || ! \str_ends_with( $functionReference, '()' ) ) {
-                throw $exception;
+                throw new InvalidArgumentException(
+                    __METHOD__.' could not parse $functionReference.',
+                    $exception->getCode(),
+                    $exception,
+                );
             }
         }
-        $file      = '.'.Normalize::key( $name, '_' ).'.meta.php';
+
+        $file      = '.'.Normalize::key( $functionReference, '_' ).'.meta.php';
         $arguments = "'".\implode( "', '", $values )."'";
 
         $this->save(
@@ -104,16 +108,4 @@ final readonly class PHPStorm
 
         $fileInfo->save( $meta );
     }
-
-    // public static function stringArgument(
-    //     callable   $functionReference,
-    //     int        $argumentIndex,
-    //     ?string ...$values,
-    // ) : bool {
-    //     [$class, $method] = explode_class_callable( $functionReference );
-    //     $file             = '.'.Normalize::key( $class, '_' ).'meta.php';
-    //     $path             = \Support\getProjectRootDirectory( ".phpstorm.meta.php/{$file}" );
-    //     $arguments        = "'".\implode( "', '", $values )."'";
-    //     return false;
-    // }
 }

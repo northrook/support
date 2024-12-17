@@ -190,8 +190,6 @@ class FileInfo extends SplFileInfo
     /**
      * Remove {@see self}.
      *
-     * @param string|string[] $files
-     *
      * @return bool
      */
     final public function remove() : bool
