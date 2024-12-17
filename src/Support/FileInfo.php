@@ -187,6 +187,18 @@ class FileInfo extends SplFileInfo
         return Filesystem::copy( $this->getPathname(), $targetFile, $overwriteNewerFiles );
     }
 
+    /**
+     * Remove {@see self}.
+     *
+     * @param string|string[] $files
+     *
+     * @return bool
+     */
+    final public function remove() : bool
+    {
+        return Filesystem::remove( $this->getPathname() );
+    }
+
     final public static function from( string|SplFileInfo|Stringable $filename ) : self
     {
         return new static( $filename );
