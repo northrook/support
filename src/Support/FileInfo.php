@@ -132,12 +132,14 @@ class FileInfo extends SplFileInfo
      *
      * @param string|string[] $pattern
      * @param int             $flags
+     * @param bool            $asFileInfo
      *
-     * @return string[]
+     * @return ($asFileInfo is true ? FileInfo[] : string[]))
      */
     final public function glob(
         string|array $pattern,
         ?int         $flags = AUTO,
+        bool         $asFileInfo = false,
     ) : array {
         $flags = GLOB_NOSORT | GLOB_BRACE;
         $path  = \rtrim( $this->getPathname(), '\\/' );
@@ -146,6 +148,10 @@ class FileInfo extends SplFileInfo
         foreach ( (array) $pattern as $match ) {
             $match  = \DIRECTORY_SEPARATOR.\ltrim( $match, '\\/' );
             $glob[] = \glob( $path.$match, $flags ) ?: [];
+        }
+
+        if ( $asFileInfo ) {
+            return \array_map( FileInfo::from( ... ), ...$glob );
         }
 
         return \array_map( Normalize::path( ... ), ...$glob );
@@ -179,5 +185,10 @@ class FileInfo extends SplFileInfo
     final public function copy( string $targetFile, bool $overwriteNewerFiles = false ) : bool
     {
         return Filesystem::copy( $this->getPathname(), $targetFile, $overwriteNewerFiles );
+    }
+
+    final public static function from( string|SplFileInfo|Stringable $filename ) : self
+    {
+        return new static( $filename );
     }
 }
