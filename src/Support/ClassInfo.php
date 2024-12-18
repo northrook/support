@@ -6,7 +6,6 @@ namespace Support;
 
 use BadMethodCallException;
 use InvalidArgumentException;
-use Northrook\Filesystem\Path;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionMethod;
@@ -38,7 +37,7 @@ final class ClassInfo
 
     public readonly bool $exists;
 
-    public readonly ?Path $path;
+    public readonly ?FileInfo $fileInfo;
 
     /** @var array<int, string> */
     protected array $types = [];
@@ -53,24 +52,24 @@ final class ClassInfo
     protected array $parents;
 
     /**
-     * @param class-string|Path|string $source
-     * @param bool                     $validate
+     * @param class-string|FileInfo|string $source
+     * @param bool                         $validate
      */
     public function __construct(
-        Path|string $source,
-        bool        $validate = false,
+        FileInfo|string $source,
+        bool            $validate = false,
     ) {
         if ( $this->asSourceFilePath( $source ) ) {
-            $this->path = $source;
+            $this->fileInfo = $source;
             $this->parseFile();
             $this->namespace = \implode( '\\', $this->namespaces ) ?: null;
             $this->class     = \implode( '\\', [...$this->namespaces, $this->className] );
         }
         else {
-            $this->class = $source;
-            $filePath    = $this->reflect()->getFileName();
-            $this->path  = $filePath ? new Path( $filePath ) : null;
-            $source      = \explode( '\\', $source );
+            $this->class    = $source;
+            $filePath       = $this->reflect()->getFileName();
+            $this->fileInfo = $filePath ? new FileInfo( $filePath ) : null;
+            $source         = \explode( '\\', $source );
 
             $this->className  = \array_pop( $source ) ?: throw new InvalidArgumentException();
             $this->namespaces = $source;
@@ -117,24 +116,24 @@ final class ClassInfo
     }
 
     /**
-     * @param Path|string $source
+     * @param FileInfo|string $source
      *
-     * @phpstan-assert-if-false string $source
-     * @phpstan-assert-if-true Path    $source
+     * @phpstan-assert-if-false string  $source
+     * @phpstan-assert-if-true FileInfo $source
      * @return bool
      */
-    private function asSourceFilePath( Path|string &$source ) : bool
+    private function asSourceFilePath( FileInfo|string &$source ) : bool
     {
         if ( \is_string( $source ) && \str_ends_with( $source, '.php' ) ) {
-            $source = new Path( $source );
+            $source = new FileInfo( $source );
         }
 
-        if ( $source instanceof Path ) {
+        if ( $source instanceof FileInfo ) {
             if ( ! $source->exists() ) {
                 throw new InvalidArgumentException( "The provided path '{$source}' does not exist." );
             }
 
-            if ( ! $source->isReadable ) {
+            if ( ! $source->isReadable() ) {
                 throw new InvalidArgumentException( "The provided path '{$source}' is not readable." );
             }
 
@@ -206,7 +205,7 @@ final class ClassInfo
 
     private function parseFile() : void
     {
-        $filePath = (string) $this->path;
+        $filePath = (string) $this->fileInfo;
 
         $stream = \fopen( $filePath, 'r' );
 
