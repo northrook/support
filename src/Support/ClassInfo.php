@@ -118,7 +118,7 @@ final class ClassInfo
     /**
      * @param FileInfo|string $source
      *
-     * @phpstan-assert-if-false string  $source
+     * @phpstan-assert-if-false string  $sourceå
      * @phpstan-assert-if-true FileInfo $source
      * @return bool
      */
