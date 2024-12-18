@@ -155,7 +155,19 @@ final class PhpStormMeta implements Stringable
     private function exportArguments( mixed ...$arguments ) : string
     {
         try {
-            return VarExporter::export( $arguments );
+            $exportedArguments = VarExporter::export( $arguments );
+
+            if ( \str_starts_with( $exportedArguments, '[' ) ) {
+                $exportedArguments = \substr( $exportedArguments, 1 );
+            }
+
+            if ( \str_ends_with( $exportedArguments, ']' ) ) {
+                $exportedArguments = \substr( $exportedArguments, 0, -1 );
+            }
+
+            $exportedArguments = \trim( $exportedArguments );
+
+            return $exportedArguments;
         }
         catch ( Throwable $exception ) {
             throw new InvalidArgumentException(

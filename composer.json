@@ -25,7 +25,7 @@
     "ext-curl": "*",
     "northrook/cache": "@dev",
     "symfony/filesystem": "@stable",
-    "symfony/var-exporter": "^7.2"
+    "symfony/var-exporter": "@stable"
   },
   "require-dev": {
     "northrook/php-cs": "dev-main",
