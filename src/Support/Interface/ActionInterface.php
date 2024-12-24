@@ -18,6 +18,4 @@ namespace Support\Interface;
  *
  * @author Martin Nielsen <mn@northrook.com>
  */
-interface ActionInterface
-{
-}
+interface ActionInterface {}

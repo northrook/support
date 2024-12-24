@@ -7,7 +7,7 @@ namespace Support\Interface;
 /**
  * Indicate that the implementing class is handling data by reference.
  */
-interface ProxyInterface
+interface DataProxyInterface
 {
     public static function byReference( mixed &$data ) : self;
 }
