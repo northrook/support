@@ -19,7 +19,4 @@ namespace Support\Interface;
  *
  * @author Martin Nielsen <mn@northrook.com>
  */
-abstract readonly class DataObject implements DataInterface
-{
-    public const bool READONLY = true;
-}
+abstract readonly class DataObject implements DataInterface {}

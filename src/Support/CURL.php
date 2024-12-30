@@ -6,9 +6,7 @@ namespace Support;
 
 final class CURL
 {
-    private function __construct()
-    {
-    }
+    private function __construct() {}
 
     /**
      * @param string      $url
@@ -77,7 +75,7 @@ final class CURL
         $session = \curl_init( $url );
 
         // Set cURL options
-        \curl_setopt( $session, CURLOPT_NOBODY, true );         // Use HEAD request (no body fetched)
+        \curl_setopt( $session, CURLOPT_NOBODY, true );         // Use HEAD request
         \curl_setopt( $session, CURLOPT_TIMEOUT, 5 );           // Set timeout
         \curl_setopt( $session, CURLOPT_FOLLOWLOCATION, true ); // Follow redirects
         \curl_setopt( $session, CURLOPT_FAILONERROR, true );    // Fail on HTTP errors (e.g., 404)

@@ -18,7 +18,4 @@ namespace Support\Interface;
  *
  * @author Martin Nielsen <mn@northrook.com>
  */
-interface DataInterface
-{
-    public const bool READONLY = false;
-}
+interface DataInterface {}

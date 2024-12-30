@@ -6,11 +6,22 @@ namespace Support;
 
 use InvalidArgumentException;
 use LengthException;
+use Stringable;
 use function Cache\memoize;
 use const PHP_MAXPATHLEN;
 
 final class Normalize
 {
+    /**
+     * @param null|string|Stringable $string
+     *
+     * @return string
+     */
+    public static function whitespace( string|Stringable|null $string ) : string
+    {
+        return (string) \preg_replace( '#\s+#', ' ', \trim( (string) $string ) );
+    }
+
     /**
      * # Normalise a `string`, assuming returning it as a `key`.
      *
