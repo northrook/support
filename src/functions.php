@@ -876,7 +876,10 @@ namespace String {
                 'string'  => $segment,
                 'boolean' => $segment ? 'true' : 'false',
                 'integer' => (string) $segment,
-                default   => \json_encode( $value ) ?: \serialize( $value ),
+                default   => \hash(
+                    algo : 'xxh3',
+                    data : \json_encode( $value ) ?: \serialize( $value ),
+                ),
             };
         }
 
