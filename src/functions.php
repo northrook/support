@@ -861,6 +861,29 @@ namespace String {
     }
 
     /**
+     * @param mixed ...$value
+     */
+    function cacheKey( mixed ...$value ) : string
+    {
+        $key = [];
+
+        foreach ( $value as $segment ) {
+            if ( \is_null( $segment ) ) {
+                continue;
+            }
+
+            $key[] = match ( \gettype( $segment ) ) {
+                'string'  => $segment,
+                'boolean' => $segment ? 'true' : 'false',
+                'integer' => (string) $segment,
+                default   => \json_encode( $value ) ?: \serialize( $value ),
+            };
+        }
+
+        return \implode( ':', $key );
+    }
+
+    /**
      * # Generate a deterministic hash key from a value.
      *
      *  - `$value` will be stringified using `json_encode()` by default.
