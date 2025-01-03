@@ -7,7 +7,6 @@ namespace Support;
 use SplFileInfo, Override;
 use Symfony\Component\Filesystem\Exception\IOException;
 use Stringable;
-use function Assert\isUrl;
 use InvalidArgumentException;
 use RuntimeException;
 

@@ -817,23 +817,6 @@ namespace Assert {
 
         return true;
     }
-
-    /**
-     * Checks if a given value has a URL structure.
-     *
-     * ⚠️ Does **NOT** validate the URL in any capacity!
-     *
-     * @param mixed   $value
-     * @param ?string $requiredProtocol
-     *
-     * @return bool
-     */
-    function isUrl( mixed $value, ?string $requiredProtocol = null ) : bool
-    {
-        trigger_deprecation( '\\Assert\\isUrl()', '@dev', 'Use "\\Support\\isUrl()" instead.' );
-
-        return \Support\isUrl( $value, $requiredProtocol );
-    }
 }
 
 namespace String {
