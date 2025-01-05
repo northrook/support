@@ -520,9 +520,10 @@ namespace Support {
      */
     function implements_interface( string $class, string $interface ) : bool
     {
-        if ( ! \class_exists( $class ) || ! \interface_exists( $interface ) ) {
+        if ( ! \class_exists( $class, false ) || ! \interface_exists( $interface ) ) {
             return false;
         }
+
         $interfaces = \class_implements( $class );
 
         if ( ! $interface ) {
