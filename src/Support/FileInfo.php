@@ -145,15 +145,15 @@ class FileInfo extends SplFileInfo
         $glob  = [];
 
         foreach ( (array) $pattern as $match ) {
-            $match  = \DIRECTORY_SEPARATOR.\ltrim( $match, '\\/' );
-            $glob[] = \glob( $path.$match, $flags ) ?: [];
+            $match = \DIRECTORY_SEPARATOR.\ltrim( $match, '\\/' );
+            $glob  = [...$glob, ...( \glob( $path.$match, $flags ) ?: [] )];
         }
 
         if ( $asFileInfo ) {
-            return \array_map( FileInfo::from( ... ), ...$glob );
+            return \array_map( FileInfo::from( ... ), $glob );
         }
 
-        return \array_map( Normalize::path( ... ), ...$glob );
+        return \array_map( Normalize::path( ... ), $glob );
     }
 
     /**
