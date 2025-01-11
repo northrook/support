@@ -10,6 +10,8 @@ use const ENCODING;
 
 class Str implements Stringable
 {
+    public const int    TAB_SIZE = 4;
+
     public const string ENCODING = 'UTF-8';
 
     private string $string;
@@ -22,6 +24,45 @@ class Str implements Stringable
     public function __toString()
     {
         return $this->string;
+    }
+
+    /**
+     * - Ensures appropriate string encoding.
+     *
+     * @param string|Stringable $string
+     * @param int<2,4>          $tabSize
+     * @param non-empty-string  $encoding
+     *
+     * @return string
+     */
+    public static function normalize(
+        string|Stringable $string,
+        int               $tabSize = Str::TAB_SIZE,
+        string            $encoding = ENCODING,
+    ) : string {
+        // Ensure appropriate string encoding
+        $string = Str::encode( $string, $encoding );
+
+        // Convert leading spaces to tabs
+        if ( $tabSize ) {
+            $string = (string) \preg_replace_callback(
+                '#^ *#m',
+                static function( $matches ) use ( $tabSize ) {
+                    // Group each $tabSize
+                    $tabs = \intdiv( \strlen( $matches[0] ), $tabSize );
+
+                    // Replace $tabs with "\t", excess spaces discarded
+                    // Otherwise leading whitespace is trimmed
+                    return ( $tabs > 0 ) ? \str_repeat( "\t", $tabs ) : '';
+                },
+                $string,
+            );
+        }
+
+        // Trim repeated whitespace, normalize line breaks
+        $string = (string) \preg_replace( ['# +#', '#\r\n#', '#\r#'], [' ', "\n"], \trim( $string ) );
+
+        return $string;
     }
 
     /**

@@ -829,6 +829,34 @@ namespace String {
 
     // <editor-fold desc="Key Functions">
 
+    function key( mixed $value, string $separator = ':' ) : string
+    {
+        $key = [];
+
+        if ( ! \is_iterable( $value ) ) {
+            $value = [$value];
+        }
+
+        foreach ( $value as $segment ) {
+            if ( \is_null( $segment ) ) {
+                continue;
+            }
+
+            $key[] = match ( \gettype( $segment ) ) {
+                'string'  => $segment,
+                'boolean' => $segment ? 'true' : 'false',
+                'integer' => (string) $segment,
+                'object'  => $segment::class.'#'.\spl_object_id( $segment ),
+                default   => \hash(
+                    algo : 'xxh3',
+                    data : \json_encode( $value ) ?: \serialize( $value ),
+                ),
+            };
+        }
+
+        return \implode( $separator, $key );
+    }
+
     /**
      * # Generate a deterministic key from a value.
      *
