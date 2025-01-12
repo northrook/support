@@ -60,9 +60,7 @@ class Str implements Stringable
         }
 
         // Trim repeated whitespace, normalize line breaks
-        $string = (string) \preg_replace( ['# +#', '#\r\n#', '#\r#'], [' ', "\n"], \trim( $string ) );
-
-        return $string;
+        return (string) \preg_replace( [ '# +#', '#\r\n#', '#\r#'], [ ' ', "\n"], \trim( $string ) );
     }
 
     /**
@@ -174,31 +172,39 @@ class Str implements Stringable
         return $filter ? Arr::filter( $exploded ) : $exploded;
     }
 
-    /** Replace each key from `$map` with its value, when found in `$content`.
+    /**
+     * Replace each key from `$map` with its value, when found in `$content`.
      *
-     * @template From of non-empty-string|string
-     * @template To of null|string|\Stringable
+     * @template Match of string
+     * @template Replace of null|string|\Stringable
      *
-     * @param array<From,To> $map           [ From => To ]
-     * @param string[]       $content
-     * @param bool           $caseSensitive
+     * @param array<Match,Replace> $map
+     * @param string[]             $content
+     * @param bool                 $caseSensitive
      *
-     * @return array|string|string[] The processed `$content`, or null if `$content` is empty
+     * @return ($content is string ? string : string[])
      */
     public static function replaceEach(
         array        $map,
         string|array $content,
         bool         $caseSensitive = true,
     ) : string|array {
+        // Bail early on empty content
         if ( ! $content ) {
             return $content;
         }
 
-        $keys = \array_keys( $map );
+        // Validate and normalize the [Match=>Replace] map
+        foreach ( $map as $match => $replace ) {
+            \assert( ! empty( $match ), __METHOD__.' does not accept empty match keys' );
+            $map[$match] = (string) $replace;
+        }
+
+        /** @var array<string,string> $map */
 
         return $caseSensitive
-                ? \str_replace( $keys, $map, $content )
-                : \str_ireplace( $keys, $map, $content );
+                ? \str_replace( ( \array_keys( $map ) ), $map, $content )
+                : \str_ireplace( ( \array_keys( $map ) ), $map, $content );
     }
 
     /**
