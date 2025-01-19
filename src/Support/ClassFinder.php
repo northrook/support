@@ -270,6 +270,23 @@ final class ClassFinder implements Countable
         return \count( $this->found );
     }
 
+    /**
+     * @return class-string[]
+     */
+    public function getFoundClasses() : array
+    {
+        /** @var class-string[] */
+        return \array_keys( $this->found );
+    }
+
+    /**
+     * @return array<class-string|string, string>
+     */
+    public function getResults() : array
+    {
+        return $this->found;
+    }
+
     public function hasResults() : bool
     {
         return ! empty( $this->found );
