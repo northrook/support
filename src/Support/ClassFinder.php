@@ -79,9 +79,10 @@ final class ClassFinder implements Countable
             throw new InvalidArgumentException( $message );
         }
 
-        $basename   = null;
-        $namespace  = null;
-        $attributes = [];
+        $basename      = null;
+        $namespace     = null;
+        $attributes    = [];
+        $hasAttributes = false;
 
         while ( false !== ( $line = \fgets( $stream ) ) ) {
             $line = \trim(
@@ -97,6 +98,10 @@ final class ClassFinder implements Countable
 
             if ( \str_starts_with( $line, 'namespace ' ) ) {
                 $namespace ??= \trim( \substr( $line, \strlen( 'namespace' ) ), " \n\r\t\v\0;" );
+            }
+
+            if ( ! $hasAttributes && \str_starts_with( $line, '#[' ) ) {
+                $hasAttributes = true;
             }
 
             foreach ( $this->matchAttributes as $attribute => $_ ) {
@@ -115,7 +120,7 @@ final class ClassFinder implements Countable
 
         \fclose( $stream );
 
-        if ( ! $basename ) {
+        if ( ! $basename || ! $hasAttributes ) {
             return;
         }
 
