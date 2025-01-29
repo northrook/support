@@ -824,12 +824,23 @@ namespace String {
 
     use JetBrains\PhpStorm\Deprecated;
     use Support\{Escape, Normalize};
+    use Random\RandomException;
     use function Support\getProjectRootDirectory;
-    use const Support\{EMPTY_STRING, ENCODE_ESCAPE_JSON, FILTER_STRING_COMMENTS, URL_SAFE_CHARACTERS_UNICODE};
+    use const Support\{AUTO, EMPTY_STRING, ENCODE_ESCAPE_JSON, FILTER_STRING_COMMENTS, URL_SAFE_CHARACTERS_UNICODE};
 
     // <editor-fold desc="Key Functions">
 
-    function key( mixed $value, string $separator = ':' ) : string
+    function createKey() : string
+    {
+        try {
+            return \hash( algo : 'xxh3', data : \random_bytes( 7 ) );
+        }
+        catch ( RandomException $e ) {
+            return \hash( algo : 'xxh3', data : (string) \rand( 0, PHP_INT_MAX ) );
+        }
+    }
+
+    function implodeKey( mixed $value = AUTO, string $separator = ':' ) : string
     {
         $key = [];
 
@@ -933,17 +944,19 @@ namespace String {
         mixed  $value,
         string $encoder = 'json',
     ) : string {
-        // Use serialize if defined
-        if ( 'serialize' === $encoder ) {
-            $value = \serialize( $value );
-        }
-        // Implode if defined and $value is an array
-        elseif ( 'implode' === $encoder && \is_array( $value ) ) {
-            $value = \implode( ':', $value );
-        }
-        // JSON as default, or as fallback
-        else {
-            $value = \json_encode( $value ) ?: \serialize( $value );
+        if ( ! \is_string( $value ) ) {
+            // Use serialize if defined
+            if ( 'serialize' === $encoder ) {
+                $value = \serialize( $value );
+            }
+            // Implode if defined and $value is an array
+            elseif ( 'implode' === $encoder && \is_array( $value ) ) {
+                $value = \implode( ':', $value );
+            }
+            // JSON as default, or as fallback
+            else {
+                $value = \json_encode( $value ) ?: \serialize( $value );
+            }
         }
 
         // Hash the $value to a 16 character string
