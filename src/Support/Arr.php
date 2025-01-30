@@ -7,7 +7,7 @@ namespace Support;
 use JsonException;
 use InvalidArgumentException;
 
-use function Assert\{isEmpty, isIterable};
+use function Assert\{isEmpty};
 
 final class Arr
 {
@@ -137,26 +137,39 @@ final class Arr
 
     /**
      * @param array<array-key, mixed> $array
+     * @param bool                    $preserveKeys
      * @param bool                    $filter
+     * @param self::USE*              $filterMode
      *
      * @return array<array-key, mixed>
      */
-    public static function flatten( array $array, bool $filter = false ) : array
-    {
+    public static function flatten(
+        array         $array,
+        bool          $preserveKeys = false,
+        bool|callable $filter = false,
+        int           $filterMode = Arr::USE_VALUE,
+    ) : array {
         $result = [];
 
-        foreach ( $array as $key => $value ) {
-            if ( isIterable( $value ) ) {
-                $value  = \iterator_to_array( $value );
-                $result = \array_merge( $result, Arr::flatten( $filter ? Arr::filter( $array ) : $value ) );
-            }
-            else {
-                // Add the value while preserving the key
-                $result[$key] = $value;
-            }
+        \array_walk_recursive(
+            $array,
+            match ( $preserveKeys ) {
+                true => function( $v, $k ) use ( &$result ) : void {
+                    $result[$k] = $v;
+                },
+                false => function( $v ) use ( &$result ) : void {
+                    $result[] = $v;
+                },
+            },
+        );
+
+        if ( false === $filter ) {
+            return $result;
         }
 
-        return $result;
+        $callback = true === $filter ? static fn( $v ) => ! isEmpty( $v ) : $filter;
+
+        return \array_filter( $result, $callback, $filterMode );
     }
 
     /**
@@ -165,10 +178,15 @@ final class Arr
      *
      * @return array<array-key, scalar>
      */
-    public static function uniqueScalar( array $array, bool $caseSensitive = false ) : array
-    {
+    public static function uniqueScalar(
+        array $array,
+        bool  $caseSensitive = false,
+    ) : array {
         if ( ! $caseSensitive ) {
-            $array = \array_map( static fn( $value ) => \is_string( $value ) ? \strtolower( $value ) : $value, $array );
+            $array = \array_map(
+                static fn( $value ) => \is_string( $value ) ? \strtolower( $value ) : $value,
+                $array,
+            );
         }
 
         return \array_unique( $array, SORT_REGULAR );
@@ -179,8 +197,9 @@ final class Arr
      *
      * @return array<array-key, mixed>
      */
-    public static function uniqueValues( array $array ) : array
-    {
+    public static function uniqueValues(
+        array $array,
+    ) : array {
         $unique = [];
 
         foreach ( $array as $key => $value ) {
@@ -220,8 +239,10 @@ final class Arr
      *
      * @return bool
      */
-    public static function hasKeys( array $array, int|string ...$keys ) : bool
-    {
+    public static function hasKeys(
+        array         $array,
+        int|string ...$keys,
+    ) : bool {
         foreach ( $keys as $key ) {
             if ( ! \array_key_exists( $key, $array ) ) {
                 return false;
@@ -238,8 +259,11 @@ final class Arr
      *
      * @return array<array-key, mixed>
      */
-    public static function replaceKey( array $array, int|string $key, int|string $replacement ) : array
-    {
+    public static function replaceKey(
+        array      $array,
+        int|string $key,
+        int|string $replacement,
+    ) : array {
         $keys  = \array_keys( $array );
         $index = \array_search( $key, $keys, true );
 
@@ -257,8 +281,10 @@ final class Arr
      *
      * @return object
      */
-    public static function asObject( array|object $array, bool $filter = false ) : object
-    {
+    public static function asObject(
+        array|object $array,
+        bool         $filter = false,
+    ) : object {
         if ( $filter && \is_array( $array ) ) {
             $array = \array_filter( $array );
         }
