@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Support\Interface;
 
+use JetBrains\PhpStorm\Deprecated;
+
 /**
  * Indicates that this class is a `DataTransferObject`.
  *
@@ -14,8 +16,7 @@ namespace Support\Interface;
  *
  * The class may add `get` methods for conditional property retrieval.
  *
- * The {@see self::READONLY} indicates the `readonly` status.
- *
  * @author Martin Nielsen <mn@northrook.com>
  */
+#[Deprecated]
 interface DataInterface {}

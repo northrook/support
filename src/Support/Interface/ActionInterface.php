@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Support\Interface;
 
+use JetBrains\PhpStorm\Deprecated;
+
 /**
  * The primary `action` must be through the `__invoke` method.
  *
@@ -18,4 +20,5 @@ namespace Support\Interface;
  *
  * @author Martin Nielsen <mn@northrook.com>
  */
+#[Deprecated]
 interface ActionInterface {}

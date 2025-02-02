@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Interface;
 
+use JetBrains\PhpStorm\Deprecated;
+
 /**
  * Designate a class as printable.
  *
@@ -15,6 +17,7 @@ namespace Interface;
  *
  * @author Martin Nielsen <mn@northrook.com>
  */
+#[Deprecated]
 trait PrintableClass
 {
     /**

@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Interface;
 
+use JetBrains\PhpStorm\Deprecated;
 use Stringable;
 
+#[Deprecated]
 interface Printable extends Stringable
 {
     /**

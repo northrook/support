@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Interface;
 
 use BadMethodCallException;
+use JetBrains\PhpStorm\Deprecated;
 use LogicException;
 
 /**
@@ -21,6 +22,7 @@ use LogicException;
  *
  * @author Martin Nielsen <mn@northrook.com>
  */
+#[Deprecated]
 trait SingletonClass
 {
     private static ?self $__instance = null;
