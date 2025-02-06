@@ -56,8 +56,8 @@ final class ClassInfo
      * @param bool                         $validate
      */
     public function __construct(
-        FileInfo|string $source,
-        bool            $validate = false,
+        string|object $source,
+        bool          $validate = false,
     ) {
         if ( $this->asSourceFilePath( $source ) ) {
             $this->fileInfo = $source;
@@ -122,7 +122,7 @@ final class ClassInfo
      * @phpstan-assert-if-true FileInfo $source
      * @return bool
      */
-    private function asSourceFilePath( FileInfo|string &$source ) : bool
+    private function asSourceFilePath( object|string &$source ) : bool
     {
         if ( \is_string( $source ) && \str_ends_with( $source, '.php' ) ) {
             $source = new FileInfo( $source );
@@ -139,6 +139,8 @@ final class ClassInfo
 
             return true;
         }
+
+        $source = $source::class;
 
         return false;
     }
