@@ -54,10 +54,12 @@ final class ClassInfo
     /**
      * @param class-string|FileInfo|string $source
      * @param bool                         $validate
+     * @param bool                         $discover
      */
     public function __construct(
         string|object $source,
         bool          $validate = false,
+        bool          $discover = false,
     ) {
         if ( $this->asSourceFilePath( $source ) ) {
             $this->fileInfo = $source;
@@ -82,6 +84,12 @@ final class ClassInfo
 
         if ( $validate && ! $this->exists ) {
             throw new InvalidArgumentException( "The class {$this->class} cannot be loaded." );
+        }
+
+        if ( $discover ) {
+            $this->getInterfaces();
+            $this->getTraits();
+            $this->getParents();
         }
     }
 
