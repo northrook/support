@@ -12,6 +12,7 @@ namespace {
 namespace Support {
 
     use InvalidArgumentException;
+    use JetBrains\PhpStorm\{Deprecated};
     use function Cache\memoize;
     use function Assert\{isIterable, isScalar};
 
@@ -593,10 +594,10 @@ namespace Support {
      *
      * @return string
      */
+    #[Deprecated( 'Use ClassInfo', [ClassInfo::class, 'basename'] )]
     function classBasename( string|object $class, ?string $filter = 'strtolower' ) : string
     {
-        $class      = \is_object( $class ) ? $class::class : $class;
-        $namespaced = \explode( '\\', '$className' );
+        $namespaced = \explode( '\\', \is_object( $class ) ? $class::class : $class );
         $basename   = \end( $namespaced );
 
         if ( \is_callable( $filter ) ) {
@@ -828,11 +829,10 @@ namespace Assert {
 
 namespace String {
 
-    use JetBrains\PhpStorm\Deprecated;
     use Support\{Escape, Normalize};
     use Random\RandomException;
     use function Support\getProjectRootDirectory;
-    use const Support\{AUTO, EMPTY_STRING, ENCODE_ESCAPE_JSON, FILTER_STRING_COMMENTS, URL_SAFE_CHARACTERS_UNICODE};
+    use const Support\{AUTO, EMPTY_STRING, URL_SAFE_CHARACTERS_UNICODE};
 
     // <editor-fold desc="Key Functions">
 
@@ -1015,170 +1015,22 @@ namespace String {
 
     // </editor-fold>
 
-    // <editor-fold desc="Escapes and Filters">
-    //
-    // Filter: safe string, may contain valid HTML
-    // Escape: safe string, HTML entities encoded
-
-    /**
-     * Performs {@see \htmlspecialchars} on the provided string,
-     * and converts template comments to HTML comments.
-     *
-     * @param null|string|\Stringable $string
-     * @param non-empty-string        $encoding
-     *
-     * @return string
-     */
-    function filterHtml( null|string|\Stringable $string, string $encoding = 'UTF-8' ) : string
-    {
-        // Can not be null or an empty string
-        if ( ! $string = (string) $string ) {
-            return EMPTY_STRING;
-        }
-
-        $string = \htmlspecialchars( $string, ENT_QUOTES | ENT_HTML5 | ENT_SUBSTITUTE, $encoding );
-
-        return \strtr( $string, FILTER_STRING_COMMENTS );
-    }
-
-    /**
-     * Escapes specified substrings in a string with a `\`.
-     *
-     * Normalizes consecutive backslashes to a single backslash.
-     *
-     * @param string $string
-     * @param string ...$escape
-     *
-     * @return string
-     */
-    #[Deprecated( replacement : '\Support\Escape::string()' )]
-    function escape( string $string, string ...$escape ) : string
-    {
-        foreach ( $escape as $substring ) {
-            $string = \str_replace( $substring, '\\'.$substring, $string );
-        }
-
-        if ( \str_contains( $string, '\\\\' ) ) {
-            return (string) \preg_replace( '#\\\\+#', '\\', $string );
-        }
-
-        return $string;
-    }
-
-    /**
-     * Escapes string using {@see \htmlentities}.
-     *
-     * @param null|string|\Stringable $string
-     * @param non-empty-string        $encoding
-     *
-     * @return string
-     */
-    #[Deprecated( replacement : '\Support\Escape::html()' )]
-    function escapeHtml( null|string|\Stringable $string, string $encoding = 'UTF-8' ) : string
-    {
-        // Can not be null or an empty string
-        if ( ! $string = (string) $string ) {
-            return EMPTY_STRING;
-        }
-
-        return \htmlentities( $string, ENT_QUOTES | ENT_HTML5, $encoding );
-    }
-
-    /**
-     * Escapes string for use inside CSS template.
-     *
-     * @param null|string|\Stringable $string
-     *
-     * @return string
-     *
-     * @see http://www.w3.org/TR/2006/WD-CSS21-20060411/syndata.html#q6 W3C CSS Characters and case reference
-     */
-    #[Deprecated( replacement : '\Support\Escape::css()' )]
-    function escapeCSS( null|string|\Stringable $string ) : string
-    {
-        trigger_deprecation( 'Northrook\\Functions', 'probe', __METHOD__ );
-        // http://www.w3.org/TR/2006/WD-CSS21-20060411/syndata.html#q6
-
-        // Can not be null or an empty string
-        if ( ! $string = (string) $string ) {
-            return EMPTY_STRING;
-        }
-
-        return \addcslashes( $string, "\x00..\x1F!\"#$%&'()*+,./:;<=>?@[\\]^`{|}~" );
-    }
-
-    /**
-     * Escapes variables for use inside <script>.
-     *
-     * @param mixed $value
-     *
-     * @return string
-     */
-    #[Deprecated( replacement : '\Support\Escape::js()' )]
-    function escapeJS( mixed $value ) : string
-    {
-        trigger_deprecation( 'Northrook\\Functions', 'probe', __METHOD__ );
-
-        $json = \json_encode( $value, ENCODE_ESCAPE_JSON );
-        if ( \json_last_error() ) {
-            throw new \RuntimeException( \json_last_error_msg() );
-        }
-
-        if ( ! $json ) {
-            return EMPTY_STRING;
-        }
-
-        return \str_replace( [']]>', '<!', '</'], [']]\u003E', '\u003C!', '<\/'], $json );
-    }
-
-    /**
-     * Escapes string for use inside HTML attribute value.
-     *
-     * @param null|string|\Stringable $string
-     * @param bool                    $double
-     * @param string                  $encoding
-     *
-     * @return string
-     */
-    #[Deprecated( replacement : '\Support\Escape::elementAttribute()' )]
-    function escapeHtmlAttr(
-        null|string|\Stringable $string,
-        bool                    $double = true,
-        string                  $encoding = 'UTF-8',
-    ) : string {
-        trigger_deprecation( 'Northrook\\Functions', 'dev', __METHOD__ );
-        // Can not be null or an empty string
-        if ( ! $string = (string) $string ) {
-            return EMPTY_STRING;
-        }
-
-        if ( \str_contains( $string, '`' ) && \strpbrk( $string, ' <>"\'' ) === false ) {
-            $string .= ' '; // protection against innerHTML mXSS vulnerability nette/nette#1496
-        }
-
-        $string = \htmlspecialchars( $string, ENT_QUOTES | ENT_HTML5 | ENT_SUBSTITUTE, $encoding, $double );
-
-        return \str_replace( '{', '&#123;', $string );
-    }
-
-    // </editor-fold>
-
     // <editor-fold desc="Filters and Escapes">
 
     // <editor-fold desc="URL">
 
     /**
-     * Filter a string assuming it a URL.
-     *
-     * - Preserves Unicode characters.
-     * - Removes tags by default.
-     *
      * @param null|string|\Stringable $string       $string
      * @param bool                    $preserveTags
      *
      * @return string
+     * @deprecated `\Support\Escape::url( .., .., )`
+     *
+     * Filter a string assuming it a URL.
+     *
+     * - Preserves Unicode characters.
+     * - Removes tags by default.
      */
-    #[Deprecated( replacement : '\Support\Escape::url( .., .., )' )]
     function filterUrl( null|string|\Stringable $string, bool $preserveTags = false ) : string
     {
         // Can not be null or an empty string
@@ -1206,13 +1058,12 @@ namespace String {
     }
 
     /**
-     * Sanitizes string for use inside href attribute.
-     *
      * @param null|string|\Stringable $string
      *
      * @return string
+     * @deprecated  `\Support\Escape::url()`
+     *              Sanitizes string for use inside href attribute
      */
-    #[Deprecated( replacement : '\Support\Escape::url()' )]
     function escapeUrl( null|string|\Stringable $string ) : string
     {
         trigger_deprecation( 'Northrook\\Functions', 'probing', __METHOD__ );
@@ -1226,18 +1077,18 @@ namespace String {
     // </editor-fold>
 
     /**
+     * @param string $string
+     *
+     * @return string
+     * @deprecated `\Support\Escape::each()`
+     *
      * Escape each and every character in the provided string.
      *
      * ```
      *  escapeCharacters('Hello!');
      *  // => '\H\e\l\l\o\!'
      * ```
-     *
-     * @param string $string
-     *
-     * @return string
      */
-    #[Deprecated( replacement : '\Support\Escape::each()' )]
     function escapeCharacters( string $string ) : string
     {
         return \implode( '', \array_map( static fn( $char ) => '\\'.$char, \str_split( $string ) ) );
