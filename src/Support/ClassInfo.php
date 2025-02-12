@@ -10,6 +10,9 @@ use ReflectionClass;
 use ReflectionException;
 use ReflectionMethod;
 
+/**
+ * @template T of object
+ */
 final class ClassInfo
 {
     private const array TYPES = [
@@ -22,6 +25,7 @@ final class ClassInfo
         'interface',
     ];
 
+    /** @var ReflectionClass<T> */
     protected readonly ReflectionClass $reflection;
 
     /** @var array<int, string> */
@@ -32,7 +36,7 @@ final class ClassInfo
 
     public readonly string $className;
 
-    /** @var class-string|string */
+    /** @var class-string<T> */
     public readonly string $class;
 
     public readonly bool $exists;
@@ -52,9 +56,9 @@ final class ClassInfo
     protected array $parents;
 
     /**
-     * @param class-string|FileInfo|string $source
-     * @param bool                         $validate
-     * @param bool                         $discover
+     * @param class-string<T>|FileInfo|string $source
+     * @param bool                            $validate
+     * @param bool                            $discover
      */
     public function __construct(
         string|object $source,
@@ -68,6 +72,7 @@ final class ClassInfo
             $this->class     = \implode( '\\', [...$this->namespaces, $this->className] );
         }
         else {
+            /** @var class-string $source */
             $this->class    = $source;
             $filePath       = $this->reflect()->getFileName();
             $this->fileInfo = $filePath ? new FileInfo( $filePath ) : null;
@@ -93,6 +98,9 @@ final class ClassInfo
         }
     }
 
+    /**
+     * @return ReflectionClass<T>
+     */
     public function reflect() : ReflectionClass
     {
         try {
@@ -124,9 +132,38 @@ final class ClassInfo
     }
 
     /**
+     * # Get the class name of a provided class, or the calling class.
+     *
+     * - Will use the `debug_backtrace()` to get the calling class if no `$class` is provided.
+     *
+     * ```
+     * $class = new \Northrook\Core\Env();
+     * classBasename( $class );
+     * // => 'Env'
+     * ```
+     *
+     * @param class-string|object|string $class
+     * @param ?callable-string           $filter {@see \strtolower} by default
+     *
+     * @return string
+     */
+    public static function basename( string|object $class, ?string $filter = 'strtolower' ) : string
+    {
+        $className  = \is_object( $class ) ? $class::class : $class;
+        $namespaced = \explode( '\\', $className );
+        $basename   = \end( $namespaced );
+
+        if ( \is_callable( $filter ) ) {
+            return $filter( $basename );
+        }
+
+        return $basename;
+    }
+
+    /**
      * @param FileInfo|string $source
      *
-     * @phpstan-assert-if-false string  $sourceå
+     * @phpstan-assert-if-false string  $source
      * @phpstan-assert-if-true FileInfo $source
      * @return bool
      */
@@ -147,6 +184,8 @@ final class ClassInfo
 
             return true;
         }
+
+        \assert( \class_exists( $source, false ) );
 
         $source = $source::class;
 
@@ -219,7 +258,7 @@ final class ClassInfo
 
         $stream = \fopen( $filePath, 'r' );
 
-        if ( false === $stream ) {
+        if ( $stream === false ) {
             throw new InvalidArgumentException( 'Unable to open file: '.$filePath );
         }
 

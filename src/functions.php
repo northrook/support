@@ -200,7 +200,7 @@ namespace Support {
         }
 
         // Indicates this could be a `.hidden` path
-        if ( '.' === $string[0] && \ctype_alpha( $string[1] ) ) {
+        if ( $string[0] === '.' && \ctype_alpha( $string[1] ) ) {
             return true;
         }
 
@@ -393,12 +393,12 @@ namespace Support {
 
         // If any option is true, set all others to false
         if ( \in_array( true, $array, true ) ) {
-            return \array_map( static fn( $option ) => true === $option, $array );
+            return \array_map( static fn( $option ) => $option === true, $array );
         }
 
         // If any option is false, set all others to true
         if ( \in_array( false, $array, true ) ) {
-            return \array_map( static fn( $option ) => false != $option, $array );
+            return \array_map( static fn( $option ) => $option != false, $array );
         }
 
         // If none are true or false, set all to the default
@@ -589,15 +589,21 @@ namespace Support {
      * ```
      *
      * @param class-string|object|string $class
+     * @param ?callable-string           $filter {@see \strtolower} by default
      *
      * @return string
      */
-    function classBasename( string|object $class ) : string
+    function classBasename( string|object $class, ?string $filter = 'strtolower' ) : string
     {
-        $class     = \is_object( $class ) ? $class::class : $class;
-        $namespace = \strrpos( $class, '\\' );
+        $class      = \is_object( $class ) ? $class::class : $class;
+        $namespaced = \explode( '\\', '$className' );
+        $basename   = \end( $namespaced );
 
-        return $namespace ? \substr( $class, ++$namespace ) : $class;
+        if ( \is_callable( $filter ) ) {
+            return $filter( $basename );
+        }
+
+        return $basename;
     }
 
     /**
@@ -946,11 +952,11 @@ namespace String {
     ) : string {
         if ( ! \is_string( $value ) ) {
             // Use serialize if defined
-            if ( 'serialize' === $encoder ) {
+            if ( $encoder === 'serialize' ) {
                 $value = \serialize( $value );
             }
             // Implode if defined and $value is an array
-            elseif ( 'implode' === $encoder && \is_array( $value ) ) {
+            elseif ( $encoder === 'implode' && \is_array( $value ) ) {
                 $value = \implode( ':', $value );
             }
             // JSON as default, or as fallback
