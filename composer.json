@@ -23,6 +23,7 @@
   "require": {
     "php": ">=8.3",
     "ext-curl": "*",
+    "northrook/core": "@dev",
     "northrook/cache": "@dev",
     "symfony/filesystem": "@stable",
     "symfony/var-exporter": "@stable"
