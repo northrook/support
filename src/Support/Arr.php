@@ -7,8 +7,6 @@ namespace Support;
 use JsonException;
 use InvalidArgumentException;
 
-use function Assert\{isEmpty};
-
 final class Arr
 {
     public const int
@@ -75,7 +73,7 @@ final class Arr
             if ( ! \is_numeric( $item ) ) {
                 throw new InvalidArgumentException( 'Array item must be numeric.' );
             }
-            if ( null === $closest
+            if ( $closest === null
                  || \abs( (int) $match - (int) $closest )
                     > \abs( (int) $item - (int) $match )
             ) {
@@ -163,11 +161,11 @@ final class Arr
             },
         );
 
-        if ( false === $filter ) {
+        if ( $filter === false ) {
             return $result;
         }
 
-        $callback = true === $filter ? static fn( $v ) => ! isEmpty( $v ) : $filter;
+        $callback = $filter === true ? static fn( $v ) => ! isEmpty( $v ) : $filter;
 
         return \array_filter( $result, $callback, $filterMode );
     }
@@ -267,7 +265,7 @@ final class Arr
         $keys  = \array_keys( $array );
         $index = \array_search( $key, $keys, true );
 
-        if ( false !== $index ) {
+        if ( $index !== false ) {
             $keys[$index] = $replacement;
             $array        = \array_combine( $keys, $array );
         }

@@ -60,7 +60,7 @@ class Str implements Stringable
         }
 
         // Trim repeated whitespace, normalize line breaks
-        return (string) \preg_replace( [ '# +#', '#\r\n#', '#\r#'], [ ' ', "\n"], \trim( $string ) );
+        return (string) \preg_replace( ['# +#', '#\r\n#', '#\r#'], [' ', "\n"], \trim( $string ) );
     }
 
     /**
@@ -110,10 +110,11 @@ class Str implements Stringable
      * @return ?string
      */
     public static function extract(
-        #[Language( 'RegExp' )] string $pattern,
+        #[Language( 'RegExp' )]
+        string $pattern,
         string $string,
     ) : ?string {
-        if ( false === \preg_match_all( $pattern, $string, $matches, PREG_SET_ORDER ) ) {
+        if ( \preg_match_all( $pattern, $string, $matches, PREG_SET_ORDER ) === false ) {
             return null;
         }
 
@@ -258,7 +259,7 @@ class Str implements Stringable
     ) : array {
         $offset = $first ? \mb_strpos( $string, $substring ) : \mb_strrpos( $string, $substring );
 
-        if ( false === $offset ) {
+        if ( $offset === false ) {
             return [$string, null];
         }
 
@@ -355,7 +356,7 @@ class Str implements Stringable
 
         $offset = $first ? \strpos( $string, $substring ) : \strrpos( $string, $substring );
 
-        if ( false === $offset ) {
+        if ( $offset === false ) {
             return $string;
         }
         $offset += \strlen( $substring );
@@ -370,7 +371,7 @@ class Str implements Stringable
         }
         $offset = $first ? \strpos( $string, $substring ) : \strrpos( $string, $substring );
 
-        if ( false === $offset ) {
+        if ( $offset === false ) {
             return $string;
         }
         // else {

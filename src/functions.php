@@ -14,7 +14,6 @@ namespace Support {
     use InvalidArgumentException;
     use JetBrains\PhpStorm\{Deprecated};
     use function Cache\memoize;
-    use function Assert\{isIterable, isScalar};
 
     // <editor-fold desc="Constants">
 
@@ -270,7 +269,7 @@ namespace Support {
      */
     function toString( mixed $value, string $separator = '', bool $filter = true ) : string
     {
-        if ( isScalar( $value ) ) {
+        if ( ( $value ) ) {
             return (string) $value;
         }
 
@@ -364,30 +363,10 @@ namespace Support {
         ];
     }
 
-    /**
-     * @param class-string|object|string $class
-     *
-     * @return string
-     */
+    #[Deprecated( 'Use class_string' )]
     function get_class_string( object|string $class ) : string
     {
         return \is_object( $class ) ? $class::class : $class;
-    }
-
-    /**
-     * Returns a string of the `$class`, appended by the object_jid.
-     *
-     * ```
-     * \Namespace\ClassName::42
-     * ```
-     *
-     * @param object $class
-     *
-     * @return string FQCN::#
-     */
-    function get_class_id( object $class ) : string
-    {
-        return $class::class.'::'.\spl_object_id( $class );
     }
 
     /**
@@ -631,81 +610,6 @@ namespace Assert {
         return $value;
     }
 
-    /**
-     * Check whether the script is being executed from a command line.
-     */
-    function isCLI() : bool
-    {
-        return PHP_SAPI === 'cli' || \defined( 'STDIN' );
-    }
-
-    /**
-     * Checks whether OPcache is installed and enabled for the given environment.
-     */
-    function OPcacheEnabled() : bool
-    {
-        // Ensure OPcache is installed and not disabled
-        if (
-            ! \function_exists( 'opcache_invalidate' )
-            || ! \ini_get( 'opcache.enable' )
-        ) {
-            return false;
-        }
-
-        // If called from CLI, check accordingly, otherwise true
-        return ! isCLI() || \ini_get( 'opcache.enable_cli' );
-    }
-
-    /**
-     * False if passed value is considered `null` and `empty` type values, retains `0` and `false`.
-     *
-     * @phpstan-assert-if-true scalar $value
-     *
-     * @param mixed $value
-     *
-     * @return bool
-     */
-    function isEmpty( mixed $value ) : bool
-    {
-        // If it is a boolean, it cannot be empty
-        if ( \is_bool( $value ) ) {
-            return false;
-        }
-
-        if ( \is_numeric( $value ) ) {
-            return false;
-        }
-
-        return empty( $value );
-    }
-
-    /**
-     * # Determine if a value is a scalar.
-     *
-     * @phpstan-assert-if-true scalar|\Stringable|null $value
-     *
-     * @param mixed $value
-     *
-     * @return bool
-     */
-    function isScalar( mixed $value ) : bool
-    {
-        return \is_scalar( $value ) || $value instanceof \Stringable || \is_null( $value );
-    }
-
-    /**
-     * `is_iterable` implementation that also checks for {@see \ArrayAccess}.
-     *
-     * @phpstan-assert-if-true iterable|\Traversable $value
-     *
-     * @param mixed $value
-     *
-     * @return bool
-     */
-    function isIterable( mixed $value ) : bool
-    {
-        return \is_iterable( $value ) || $value instanceof \ArrayAccess;
-    }
 
     /**
      * @param null|string|\Stringable $value
