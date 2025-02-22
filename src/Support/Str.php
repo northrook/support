@@ -18,7 +18,7 @@ class Str implements Stringable
 
     public function __construct( string $string )
     {
-        $this->string = $this::encode( $string );
+        $this->string = str_encode( $string, self::ENCODING );
     }
 
     public function __toString()
@@ -35,32 +35,13 @@ class Str implements Stringable
      *
      * @return string
      */
+    #[Deprecated( replacement : '\Support\str_normalize' )]
     public static function normalize(
         string|Stringable $string,
         int               $tabSize = Str::TAB_SIZE,
         string            $encoding = ENCODING,
     ) : string {
-        // Ensure appropriate string encoding
-        $string = Str::encode( $string, $encoding );
-
-        // Convert leading spaces to tabs
-        if ( $tabSize ) {
-            $string = (string) \preg_replace_callback(
-                '#^ *#m',
-                static function( $matches ) use ( $tabSize ) {
-                    // Group each $tabSize
-                    $tabs = \intdiv( \strlen( $matches[0] ), $tabSize );
-
-                    // Replace $tabs with "\t", excess spaces discarded
-                    // Otherwise leading whitespace is trimmed
-                    return ( $tabs > 0 ) ? \str_repeat( "\t", $tabs ) : '';
-                },
-                $string,
-            );
-        }
-
-        // Trim repeated whitespace, normalize line breaks
-        return (string) \preg_replace( ['# +#', '#\r\n#', '#\r#'], [' ', "\n"], \trim( $string ) );
+        return str_normalize( $string, $tabSize, $encoding );
     }
 
     /**
@@ -75,6 +56,7 @@ class Str implements Stringable
      *
      * @return string
      */
+    #[Deprecated( replacement : '\Support\str_encode' )]
     public static function encode( null|string|Stringable $string, string $encoding = ENCODING ) : string
     {
         if ( ! $string = (string) $string ) {
@@ -96,6 +78,7 @@ class Str implements Stringable
      *
      * @return string the squished string with consecutive whitespace replaced by the defined whitespace character
      */
+    #[Deprecated( replacement : '\Support\str_squish' )]
     public static function squish( string $string, bool $whitespaceOnly = false ) : string
     {
         return (string) ( $whitespaceOnly

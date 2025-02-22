@@ -63,7 +63,7 @@ final class CURL
         $httpCode  = (int) \curl_getinfo( $session, CURLINFO_RESPONSE_CODE );
         \curl_close( $session );
 
-        if ( false === $success || $hasErrors || $httpCode >= 400 ) {
+        if ( $success === false || $hasErrors || $httpCode >= 400 ) {
             return null; // Fail if an error or invalid response occurs
         }
 

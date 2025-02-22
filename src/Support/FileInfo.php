@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace Support;
 
+use JetBrains\PhpStorm\Deprecated;
 use SplFileInfo, Override;
 use Symfony\Component\Filesystem\Exception\IOException;
 use Stringable;
 use InvalidArgumentException;
 use RuntimeException;
 
+#[Deprecated( 'Use \Core\Pathfinder\Path instead.' )]
 class FileInfo extends SplFileInfo
 {
     public function __construct( string|SplFileInfo|Stringable $filename )
@@ -87,7 +89,7 @@ class FileInfo extends SplFileInfo
 
         $contents = \file_get_contents( $this->getPathname() );
 
-        if ( false === $contents && $throwOnError ) {
+        if ( $contents === false && $throwOnError ) {
             throw new RuntimeException( 'Unable to read file: '.$this->getPathname() );
         }
 
@@ -98,7 +100,7 @@ class FileInfo extends SplFileInfo
     {
         $exists = \file_exists( $this->getPathname() );
 
-        if ( false === $exists && $throwOnError ) {
+        if ( $exists === false && $throwOnError ) {
             throw new RuntimeException( 'Unable to read file: '.$this->getPathname() );
         }
 

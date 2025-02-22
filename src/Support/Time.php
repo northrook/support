@@ -8,9 +8,7 @@ use DateTimeImmutable;
 use DateTimeInterface;
 use DateTimeZone;
 use Exception;
-use InvalidArgumentException;
 use Stringable;
-use function String\escapeCharacters;
 
 /**
  * @author  Martin Nielsen <mn@northrook.com>
@@ -40,7 +38,7 @@ final readonly class Time implements Stringable
         string|DateTimeZone          $timezone = 'UTC',
         string                       $format = Time::FORMAT_SORTABLE,
     ) {
-        $this->setDateTime( $dateTime, $timezone );
+        $this->dateTimeImmutable = timestamp( $dateTime, $timezone );
 
         $this->unixTimestamp = $this->dateTimeImmutable->getTimestamp();
         $this->timezone      = $this->dateTimeImmutable->getTimezone()->getName();
@@ -58,6 +56,36 @@ final readonly class Time implements Stringable
         string              $format = Time::FORMAT_SORTABLE,
     ) : Time {
         return new self( 'now', $timezone, $format );
+    }
+
+    final public function format( string $format, bool|string $wrapEach = false ) : string
+    {
+        if ( $wrapEach ) {
+            $prefixClass = \is_string( $wrapEach ) ? $wrapEach : 'datetime';
+            $format      = $this->wrapFormatted( $format, $prefixClass );
+        }
+
+        return $this->dateTimeImmutable->format( $format );
+    }
+
+    final public function __toString() : string
+    {
+        return $this->datetime;
+    }
+
+    public static function getTimezone( null|string|DateTimeZone $timezone = null ) : DateTimeZone
+    {
+        if ( $timezone instanceof DateTimeZone ) {
+            return $timezone;
+        }
+
+        try {
+            return new DateTimeZone( $timezone ?? \date_default_timezone_get() );
+        }
+        catch ( Exception $exception ) {
+            \error_log( $exception->getMessage() );
+            return new DateTimeZone( 'UTC' );
+        }
     }
 
     private function wrapFormatted( string $string, ?string $classPrefix = null ) : string
@@ -123,7 +151,7 @@ final readonly class Time implements Stringable
             $flag   = $value['flag'];
             $string = \str_replace(
                 "[{$key}]",
-                escapeCharacters( '<span class="'.$class.'">' ).$flag.escapeCharacters( '</span>' ),
+                $this->esc( '<span class="'.$class.'">' ).$flag.$this->esc( '</span>' ),
                 $string,
             );
         }
@@ -131,56 +159,20 @@ final readonly class Time implements Stringable
         return $string;
     }
 
-    final public function format( string $format, bool|string $wrapEach = false ) : string
+    /**
+     * Escape each and every character in the provided string.
+     *
+     * ```
+     * escapeCharacters('Hello!');
+     * // => '\H\e\l\l\o\!'
+     * ```
+     *
+     * @param string $string
+     *
+     * @return string
+     */
+    private function esc( string $string ) : string
     {
-        if ( $wrapEach ) {
-            $prefixClass = \is_string( $wrapEach ) ? $wrapEach : 'datetime';
-            $format      = $this->wrapFormatted( $format, $prefixClass );
-        }
-
-        return $this->dateTimeImmutable->format( $format );
-    }
-
-    final public function __toString() : string
-    {
-        return $this->datetime;
-    }
-
-    private function setDateTime(
-        int|string|DateTimeInterface $dateTime = 'now',
-        string|DateTimeZone          $timezone = 'UTC',
-    ) : void {
-        try {
-            if ( $dateTime instanceof DateTimeInterface ) {
-                $dateTime = $dateTime->getTimestamp();
-            }
-
-            if ( \is_int( $dateTime ) ) {
-                $dateTime = '@'.$dateTime;
-            }
-
-            $this->dateTimeImmutable ??= new DateTimeImmutable(
-                $dateTime,
-                $this::getTimezone( $timezone ),
-            );
-        }
-        catch ( Exception $exception ) {
-            throw new InvalidArgumentException( $exception->getMessage(), 500, $exception );
-        }
-    }
-
-    public static function getTimezone( null|string|DateTimeZone $timezone = null ) : DateTimeZone
-    {
-        if ( $timezone instanceof DateTimeZone ) {
-            return $timezone;
-        }
-
-        try {
-            return new DateTimeZone( $timezone ?? \date_default_timezone_get() );
-        }
-        catch ( Exception $exception ) {
-            \error_log( $exception->getMessage() );
-            return new DateTimeZone( 'UTC' );
-        }
+        return \implode( '', \array_map( static fn( $char ) => '\\'.$char, \str_split( $string ) ) );
     }
 }

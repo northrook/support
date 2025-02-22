@@ -74,7 +74,7 @@ final class ClassFinder implements Countable
 
         $stream = \fopen( $filePath, 'r' );
 
-        if ( false === $stream ) {
+        if ( $stream === false ) {
             $message = __CLASS__.' is unable to open file : '.$filePath;
             throw new InvalidArgumentException( $message );
         }
@@ -190,7 +190,7 @@ final class ClassFinder implements Countable
 
         $getAttributes = (array) ( $attribute ?? $this->matchAttributes );
 
-        $single = null !== $attribute;
+        $single = $attribute !== null;
         $array  = [];
 
         foreach ( $this->found as $className => $basename ) {
@@ -251,7 +251,7 @@ final class ClassFinder implements Countable
 
         foreach ( (array) $attribute as $className ) {
             if ( \class_exists( $className ) ) {
-                $this->matchAttributes[classBasename( $className )] = $className;
+                $this->matchAttributes[ClassInfo::basename( $className )] = $className;
             }
             else {
                 throw new InvalidArgumentException( 'Attribute Class '.$className.' does not exist' );

@@ -11,9 +11,9 @@ namespace {
 
 namespace Support {
 
+    use Core\Exception\NotSupportedException;
     use InvalidArgumentException;
     use JetBrains\PhpStorm\{Deprecated};
-    use function Cache\memoize;
 
     // <editor-fold desc="Constants">
 
@@ -76,32 +76,10 @@ namespace Support {
     #[Deprecated( 'Use Support\getProjectDirectory' )]
     function getProjectRootDirectory( ?string $append = null ) : string
     {
-        return memoize(
-            static function() use ( $append ) : string {
-                // Split the current directory into an array of directory segments
-                $segments = \explode( \DIRECTORY_SEPARATOR, __DIR__ );
-
-                // Ensure the directory array has at least 5 segments and a valid vendor value
-                if ( ( \count( $segments ) >= 5 && $segments[\count( $segments ) - 4] === 'vendor' ) ) {
-                    // Remove the last 4 segments (vendor, package name, and Composer structure)
-                    $rootSegments = \array_slice( $segments, 0, -4 );
-                }
-                // Look for a src value
-                elseif ( \in_array( 'src', $segments, true ) ) {
-                    $srcKey = (int) Arr::search( $segments, 'src' );
-
-                    $rootSegments = \array_slice( $segments, 0, $srcKey );
-                }
-                else {
-                    $message = __FUNCTION__.' was unable to determine a valid root. Current path: '.__DIR__;
-                    throw new \BadFunctionCallException( $message );
-                }
-
-                // Normalize and return the project path
-                return Normalize::path( [...$rootSegments, $append] );
-            },
-            __FUNCTION__,
-        );
+        if ( $append ) {
+            throw new NotSupportedException( 'The append parameter is no longer supported.' );
+        }
+        return getProjectDirectory();
     }
 
     // </editor-fold>
@@ -532,7 +510,7 @@ namespace Support {
 
         if ( $namespace ) {
             foreach ( $classes as $key => $class ) {
-                $classes[$key] = classBasename( $class );
+                $classes[$key] = ClassInfo::basename( $class );
             }
         }
 
@@ -589,7 +567,6 @@ namespace Assert {
         return $value;
     }
 
-
     /**
      * @param null|string|\Stringable $value
      * @param string                  ...$enforceDomain
@@ -634,9 +611,9 @@ namespace Assert {
 
 namespace String {
 
-    use Support\{Escape, Normalize};
     use Random\RandomException;
-    use function Support\getProjectRootDirectory;
+    use Support\Normalize;
+    use function Support\getProjectDirectory;
     use const Support\{AUTO, EMPTY_STRING, URL_SAFE_CHARACTERS_UNICODE};
 
     // <editor-fold desc="Key Functions">
@@ -646,7 +623,7 @@ namespace String {
         try {
             return \hash( algo : 'xxh3', data : \random_bytes( 7 ) );
         }
-        catch ( RandomException $e ) {
+        catch ( RandomException ) {
             return \hash( algo : 'xxh3', data : (string) \rand( 0, PHP_INT_MAX ) );
         }
     }
@@ -805,7 +782,7 @@ namespace String {
 
         static $rootKey;
         $rootKey[$separator] ??= Normalize::key(
-            [getProjectRootDirectory(), $fromRoot],
+            [getProjectDirectory(), $fromRoot],
             $separator,
         );
 
@@ -880,24 +857,6 @@ namespace String {
     }
 
     // </editor-fold>
-
-    /**
-     * @param string $string
-     *
-     * @return string
-     * @deprecated `\Support\Escape::each()`
-     *
-     * Escape each and every character in the provided string.
-     *
-     * ```
-     *  escapeCharacters('Hello!');
-     *  // => '\H\e\l\l\o\!'
-     * ```
-     */
-    function escapeCharacters( string $string ) : string
-    {
-        return \implode( '', \array_map( static fn( $char ) => '\\'.$char, \str_split( $string ) ) );
-    }
 
     function stripTags(
         null|string|\Stringable $string,

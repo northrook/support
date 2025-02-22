@@ -31,11 +31,10 @@ final class Reflect
      */
     public static function class( object|string $class ) : ReflectionClass
     {
-        \assert( \class_exists( \is_object( $class ) ? $class::class : $class ) );
-
         try {
             return new ReflectionClass( $class );
         }
+        // @phpstan-ignore-next-line
         catch ( ReflectionException $exception ) {
             throw new BadMethodCallException( $exception->getMessage(), 500, $exception );
         }

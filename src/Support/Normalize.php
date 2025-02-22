@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Support;
 
+use Core\Exception\NotSupportedException;
 use InvalidArgumentException;
+use JetBrains\PhpStorm\Deprecated;
 use LengthException;
 use Stringable;
 use function Cache\memoize;
@@ -17,6 +19,7 @@ final class Normalize
      *
      * @return string
      */
+    #[Deprecated( replacement : '\Support\str_squish' )]
     public static function whitespace( string|Stringable|null $string ) : string
     {
         return (string) \preg_replace( '#\s+#', ' ', \trim( (string) $string ) );
@@ -88,49 +91,17 @@ final class Normalize
      * @param array<int, ?string>|string $path          the string to normalize
      * @param bool                       $trailingSlash append a trailing slash
      */
+    #[Deprecated( replacement : '\Support\normalizePath' )]
     public static function path(
         string|array $path,
         bool         $trailingSlash = false,
     ) : string {
-        return memoize(
-            function() use ( $path, $trailingSlash ) : string {
-                // Remove null and empty parts
-                $filtered = Arr::filter( Arr::flatten( (array) $path ) );
-                // $filtered = \array_filter(
-                //     Arr::flatten( (array) $path ),
-                //     static function( $segment ) : bool {
-                //         return  \is_string( $segment ) || \is_null( $segment ) ;
-                //     },
-                // );
-
-                // Normalize separators
-                $normalize = (array) \str_replace( ['\\', '/'], DIRECTORY_SEPARATOR, $filtered );
-
-                // If the first character of the first segment is a separator, the path is considered relative
-                $isRelative = DIRECTORY_SEPARATOR === $normalize[0][0] ?? false;
-
-                $exploded = \explode( DIRECTORY_SEPARATOR, \implode( DIRECTORY_SEPARATOR, $normalize ) );
-
-                // Ensure each part does not start or end with illegal characters
-                $varified = \array_map( static fn( $item ) => \trim( $item, " \n\r\t\v\0\\/" ), $exploded );
-
-                // Filter the exploded path, and implode using the directory separator
-                $path = \implode( DIRECTORY_SEPARATOR, \array_filter( $varified ) );
-
-                // Preserve intended relative paths
-                if ( $isRelative ) {
-                    $path = DIRECTORY_SEPARATOR.$path;
-                }
-                // Add to realpath cache if valid
-                else {
-                    $path = \realpath( $path ) ?: $path;
-                }
-
-                // Return with or without a $trailingSlash
-                return $trailingSlash ? $path.DIRECTORY_SEPARATOR : $path;
-            },
-            \implode( ':', [...(array) $path, (int) $trailingSlash] ),
-        );
+        if ( $trailingSlash ) {
+            throw new NotSupportedException(
+                "Trailing slashes are no longer supported.\nAll paths must return without trailing slash.",
+            );
+        }
+        return normalizePath( ...(array) $path );
     }
 
     /**
@@ -153,7 +124,7 @@ final class Normalize
                 $string = \str_replace( ['\\', '/'], '/', $string );
 
                 // Handle whitespace
-                if ( false !== $substituteWhitespace ) {
+                if ( $substituteWhitespace !== false ) {
                     $string = (string) \preg_replace( '#\s+#', $substituteWhitespace, $string );
                 }
 

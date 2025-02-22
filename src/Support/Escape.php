@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Support;
 
 use Stringable;
-use function Cache\memoize;
 use RuntimeException;
 
 final class Escape
@@ -75,36 +74,30 @@ final class Escape
      * - Preserves Unicode characters.
      * - Removes tags by default.
      *
-     * @param string|Stringable $string       $string
-     * @param bool              $preserveTags [false]
+     * @param null|string|Stringable $string       $string
+     * @param bool                   $preserveTags [false]
      *
      * @return string
      */
     public static function url(
-        string|Stringable $string,
-        bool              $preserveTags = false,
+        null|string|Stringable $string,
+        bool                   $preserveTags = false,
     ) : string {
         if ( ! $string = (string) $string ) {
             return $string;
         }
 
-        $filtered = memoize(
-            // Sanitize the URL, preserving tags for escaping
-            static function() use ( $string, $preserveTags ) : string {
-                $safeCharacters = URL_SAFE_CHARACTERS_UNICODE;
+        $safeCharacters = URL_SAFE_CHARACTERS_UNICODE;
 
-                if ( $preserveTags ) {
-                    $safeCharacters .= '{}|^`"><@';
-                }
+        if ( $preserveTags ) {
+            $safeCharacters .= '{}|^`"><@';
+        }
 
-                return (string) ( \preg_replace(
-                    pattern     : "/[^{$safeCharacters}]/u",
-                    replacement : EMPTY_STRING,
-                    subject     : $string,
-                ) ?? EMPTY_STRING );
-            },
-            \implode( ':', [$string, (int) $preserveTags] ),
-        );
+        $filtered = (string) ( \preg_replace(
+            pattern     : "/[^{$safeCharacters}]/u",
+            replacement : EMPTY_STRING,
+            subject     : $string,
+        ) ?? EMPTY_STRING );
 
         // Escape special characters including tags
         return \htmlspecialchars( $filtered, ENT_QUOTES, 'UTF-8' );

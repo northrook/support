@@ -24,7 +24,7 @@ final class PhpStormMeta implements Stringable
     public function __construct(
         ?string $projectRoot = null,
     ) {
-        $projectRoot ??= getProjectRootDirectory();
+        $projectRoot ??= getProjectDirectory();
         $this->projectRoot = new FileInfo( "{$projectRoot}/.phpstorm.meta.php/" );
     }
 
@@ -165,9 +165,7 @@ final class PhpStormMeta implements Stringable
                 $exportedArguments = \substr( $exportedArguments, 0, -1 );
             }
 
-            $exportedArguments = \trim( $exportedArguments );
-
-            return $exportedArguments;
+            return \trim( $exportedArguments );
         }
         catch ( Throwable $exception ) {
             throw new InvalidArgumentException(

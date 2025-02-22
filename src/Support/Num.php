@@ -21,14 +21,14 @@ final class Num
     }
 
     /**
-     * @param float     $number
-     * @param float     $min
-     * @param float     $max
-     * @param null|bool $isWithin
+     * @param float $number
+     * @param float $min
+     * @param float $max
+     * @param bool  $isWithin
      *
      * @return float
      */
-    public static function clamp( float $number, float $min, float $max, bool &$isWithin = null ) : float
+    public static function clamp( float $number, float $min, float $max, bool &$isWithin ) : float
     {
         $isWithin = Num::within( $number, $min, $max );
 
