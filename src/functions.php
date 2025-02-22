@@ -40,6 +40,7 @@ namespace Support {
      *
      * @return \DateTimeImmutable
      */
+    #[Deprecated( 'Use Support\timestamp' )]
     function getTimestamp(
         string|\DateTimeInterface $when = 'now',
         string|\DateTimeZone|null $timezone = null,
@@ -72,6 +73,7 @@ namespace Support {
      *
      * @return string
      */
+    #[Deprecated( 'Use Support\getProjectDirectory' )]
     function getProjectRootDirectory( ?string $append = null ) : string
     {
         return memoize(
@@ -99,29 +101,6 @@ namespace Support {
                 return Normalize::path( [...$rootSegments, $append] );
             },
             __FUNCTION__,
-        );
-    }
-
-    /**
-     * Retrieves the system temp directory for this project.
-     *
-     * - A directory is named using a hash based on the projectRootDirectory.
-     * - The return is cached using {@see \Cache\memoize()}.
-     *
-     * @param ?string $append
-     *
-     * @return string
-     */
-    function getSystemCacheDirectory( ?string $append = null ) : string
-    {
-        return memoize(
-            static function() use ( $append ) : string {
-                $tempDir = \sys_get_temp_dir();
-                $dirHash = \hash( 'xxh3', getProjectRootDirectory() );
-
-                return Normalize::path( [$tempDir, $dirHash, $append] );
-            },
-            __FUNCTION__.$append,
         );
     }
 

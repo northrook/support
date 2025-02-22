@@ -1,24 +1,7 @@
 <?php
 
-namespace Support {
-
-    /** Will use a `default` setting unless changed */
-    const AUTO = null;
-
-    const
-        TAB          = "\t",
-        EMPTY_STRING = '',
-        WHITESPACE   = ' ';
-
-    /** Line Feed  */
-    const LF = "\n";
-    /** Carriage Return */
-    const CR = "\r";
-    /** Carriage Return and Line Feed */
-    const CRLF = "\r\n";
-}
-
 namespace Time {
+
     const
         MINUTE  = 60,
         HOUR    = 3_600,
@@ -29,7 +12,6 @@ namespace Time {
         WEEK    = 604_800,
         MONTH   = 2_592_000,
         YEAR    = 31_536_000;
-
 }
 
 /**
@@ -39,7 +21,9 @@ namespace Time {
  *
  * @author Fabien Potencier <fabien@symfony.com>
  */
+
 namespace HTTP {
+
     const CONTINUE_100                             = 100;
     const SWITCHING_PROTOCOLS_101                  = 101;
     const PROCESSING_102                           = 102;            // RFC2518
