@@ -611,6 +611,7 @@ namespace Assert {
 
 namespace String {
 
+    use JetBrains\PhpStorm\Deprecated;
     use Random\RandomException;
     use Support\Normalize;
     use function Support\getProjectDirectory;
@@ -618,6 +619,7 @@ namespace String {
 
     // <editor-fold desc="Key Functions">
 
+    #[Deprecated]
     function createKey() : string
     {
         try {
@@ -674,6 +676,7 @@ namespace String {
     /**
      * @param mixed ...$value
      */
+    #[Deprecated]
     function cacheKey( mixed ...$value ) : string
     {
         $key = [];
@@ -728,6 +731,7 @@ namespace String {
      *
      * @return string 16 character hash of the value
      */
+    #[Deprecated]
     function hashKey(
         mixed  $value,
         string $encoder = 'json',
