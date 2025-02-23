@@ -9,9 +9,9 @@ use InvalidArgumentException;
 use JetBrains\PhpStorm\Deprecated;
 use LengthException;
 use Stringable;
-use function Cache\memoize;
 use const PHP_MAXPATHLEN;
 
+#[Deprecated]
 final class Normalize
 {
     /**
@@ -44,6 +44,7 @@ final class Normalize
      *
      * @return string
      */
+    #[Deprecated( replacement : '\Support\slug' )]
     public static function key(
         string|array|null $string,
         string            $separator = '-',
@@ -111,80 +112,76 @@ final class Normalize
      *
      * @return string
      */
+    #[Deprecated( replacement : '\Support\normalizeUrl' )]
     public static function url(
         string|array $path,
         false|string $substituteWhitespace = '-',
         bool         $trailingSlash = false,
     ) : string {
-        return memoize(
-            function() use ( $path, $substituteWhitespace, $trailingSlash ) : string {
-                $string = \is_array( $path ) ? \implode( '/', $path ) : $path;
+        $string = \is_array( $path ) ? \implode( '/', $path ) : $path;
 
-                // Normalize slashes
-                $string = \str_replace( ['\\', '/'], '/', $string );
+        // Normalize slashes
+        $string = \str_replace( ['\\', '/'], '/', $string );
 
-                // Handle whitespace
-                if ( $substituteWhitespace !== false ) {
-                    $string = (string) \preg_replace( '#\s+#', $substituteWhitespace, $string );
-                }
+        // Handle whitespace
+        if ( $substituteWhitespace !== false ) {
+            $string = (string) \preg_replace( '#\s+#', $substituteWhitespace, $string );
+        }
 
-                $protocol = '/';
-                $fragment = '';
-                $query    = '';
+        $protocol = '/';
+        $fragment = '';
+        $query    = '';
 
-                // Extract and lowercase the $protocol
-                if ( \str_contains( $string, '://' ) ) {
-                    [$protocol, $string] = \explode( '://', $string, 2 );
-                    $protocol            = \strtolower( $protocol ).'://';
-                }
+        // Extract and lowercase the $protocol
+        if ( \str_contains( $string, '://' ) ) {
+            [$protocol, $string] = \explode( '://', $string, 2 );
+            $protocol            = \strtolower( $protocol ).'://';
+        }
 
-                // Check if the $string contains $query and $fragment
-                $matchQuery    = \strpos( $string, '?' );
-                $matchFragment = \strpos( $string, '#' );
+        // Check if the $string contains $query and $fragment
+        $matchQuery    = \strpos( $string, '?' );
+        $matchFragment = \strpos( $string, '#' );
 
-                // If the $string contains both
-                if ( $matchQuery && $matchFragment ) {
-                    // To parse both regardless of order, we check which one appears first in the $string.
-                    // Split the $string by the first $match, which will then contain the other.
+        // If the $string contains both
+        if ( $matchQuery && $matchFragment ) {
+            // To parse both regardless of order, we check which one appears first in the $string.
+            // Split the $string by the first $match, which will then contain the other.
 
-                    // $matchQuery is first
-                    if ( $matchQuery < $matchFragment ) {
-                        [$string, $query]   = \explode( '?', $string, 2 );
-                        [$query, $fragment] = \explode( '#', $query, 2 );
-                    }
-                    // $matchFragment is first
-                    else {
-                        [$string, $fragment] = \explode( '#', $string, 2 );
-                        [$fragment, $query]  = \explode( '?', $fragment, 2 );
-                    }
+            // $matchQuery is first
+            if ( $matchQuery < $matchFragment ) {
+                [$string, $query]   = \explode( '?', $string, 2 );
+                [$query, $fragment] = \explode( '#', $query, 2 );
+            }
+            // $matchFragment is first
+            else {
+                [$string, $fragment] = \explode( '#', $string, 2 );
+                [$fragment, $query]  = \explode( '?', $fragment, 2 );
+            }
 
-                    // After splitting, prepend the relevant identifiers.
-                    $query    = "?{$query}";
-                    $fragment = "#{$fragment}";
-                }
-                // If the $string only contains $query
-                elseif ( $matchQuery ) {
-                    [$string, $query] = \explode( '?', $string, 2 );
-                    $query            = "?{$query}";
-                }
-                // If the $string only contains $fragment
-                elseif ( $matchFragment ) {
-                    [$string, $fragment] = \explode( '#', $string, 2 );
-                    $fragment            = "#{$fragment}";
-                }
+            // After splitting, prepend the relevant identifiers.
+            $query    = "?{$query}";
+            $fragment = "#{$fragment}";
+        }
+        // If the $string only contains $query
+        elseif ( $matchQuery ) {
+            [$string, $query] = \explode( '?', $string, 2 );
+            $query            = "?{$query}";
+        }
+        // If the $string only contains $fragment
+        elseif ( $matchFragment ) {
+            [$string, $fragment] = \explode( '#', $string, 2 );
+            $fragment            = "#{$fragment}";
+        }
 
-                // Remove duplicate separators, and lowercase the $path
-                $path = \strtolower( \implode( '/', \array_filter( \explode( '/', $string ) ) ) );
+        // Remove duplicate separators, and lowercase the $path
+        $path = \strtolower( \implode( '/', \array_filter( \explode( '/', $string ) ) ) );
 
-                // Prepend trailing separator if needed
-                if ( $trailingSlash ) {
-                    $path .= '/';
-                }
+        // Prepend trailing separator if needed
+        if ( $trailingSlash ) {
+            $path .= '/';
+        }
 
-                // Assemble the URL
-                return $protocol.$path.$query.$fragment;
-            },
-            \implode( ':', [...(array) $path, (string) $substituteWhitespace, (int) $trailingSlash] ),
-        );
+        // Assemble the URL
+        return $protocol.$path.$query.$fragment;
     }
 }
