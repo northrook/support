@@ -168,6 +168,7 @@ class Str implements Stringable
      *
      * @return ($content is string ? string : string[])
      */
+    #[Deprecated( replacement : '\Support\str_replace_each' )]
     public static function replaceEach(
         array        $map,
         string|array $content,
