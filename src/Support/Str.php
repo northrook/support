@@ -409,6 +409,7 @@ class Str implements Stringable
         return false;
     }
 
+    #[Deprecated( replacement : '\Support\str_start()' )]
     public static function start( string $string, string $with, ?string $separator = null ) : string
     {
         if ( \str_starts_with( $string, $with ) ) {
@@ -418,6 +419,7 @@ class Str implements Stringable
         return $with.$separator.$string;
     }
 
+    #[Deprecated( replacement : '\Support\str_end()' )]
     public static function end( string $string, string $with, ?string $separator = null ) : string
     {
         if ( \str_ends_with( $string, $with ) ) {
