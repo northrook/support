@@ -372,6 +372,7 @@ class Str implements Stringable
      *
      * @return bool
      */
+    #[Deprecated( replacement : '\Support\str_starts_with_any()' )]
     public static function startsWith( string $string, string|array $substring, bool $caseSensitive = false ) : bool
     {
         if ( ! $caseSensitive ) {
@@ -394,6 +395,7 @@ class Str implements Stringable
      *
      * @return bool
      */
+    #[Deprecated( replacement : '\Support\str_ends_with_any()' )]
     public static function endsWith( string $string, string|array $substring, bool $caseSensitive = false ) : bool
     {
         if ( ! $caseSensitive ) {

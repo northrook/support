@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Support;
 
+use JetBrains\PhpStorm\Deprecated;
+
+#[Deprecated]
 final class Character
 {
     public static function isDelimiter( string $string ) : bool
