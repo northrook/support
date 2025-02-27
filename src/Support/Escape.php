@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Support;
 
+use JetBrains\PhpStorm\Deprecated;
 use Stringable;
 use RuntimeException;
 
@@ -79,6 +80,7 @@ final class Escape
      *
      * @return string
      */
+    #[Deprecated]
     public static function url(
         null|string|Stringable $string,
         bool                   $preserveTags = false,
@@ -140,6 +142,7 @@ final class Escape
      *
      * @TODO Merge with {@see filterHtml()}.
      */
+    #[Deprecated]
     public static function html( string|Stringable $string, string $encoding = 'UTF-8' ) : string
     {
         if ( ! $string = (string) $string ) {

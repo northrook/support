@@ -11,26 +11,8 @@ namespace {
 
 namespace Support {
 
-    use Core\Exception\NotSupportedException;
     use InvalidArgumentException;
     use JetBrains\PhpStorm\{Deprecated};
-
-    // <editor-fold desc="Constants">
-
-    const URL_SAFE_CHARACTERS_UNICODE   = "\w.,_~:;@!$&*?#=%()+\-\[\]\'\/";
-    const URL_SAFE_CHARACTERS           = "A-Za-z0-9.,_~:;@!$&*?#=%()+\-\[\]\'\/";
-    const ENCODE_ESCAPE_JSON            = JSON_UNESCAPED_UNICODE       | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE;
-    const ENCODE_PARTIAL_UNESCAPED_JSON = JSON_PARTIAL_OUTPUT_ON_ERROR | JSON_UNESCAPED_UNICODE;
-    const FILTER_STRING_COMMENTS        = [
-        '{* '   => '<!-- ', // Latte
-        ' *}'   => ' -->',
-        '{# '   => '<!-- ', // Twig
-        ' #}'   => ' -->',
-        '{{-- ' => '<!-- ', // Blade
-        ' --}}' => ' -->',
-    ];
-
-    // </editor-fold>
 
     // <editor-fold desc="System">
 
@@ -61,25 +43,6 @@ namespace Support {
             $message = 'Unable to create a new DateTimeImmutable object: '.$exception->getMessage();
             throw new InvalidArgumentException( $message, 500, $exception );
         }
-    }
-
-    /**
-     * Retrieves the project root directory.
-     *
-     * - This function assumes the Composer directory is present in the project root.
-     * - The return is cached using {@see \Cache\memoize()}.
-     *
-     * @param ?string $append
-     *
-     * @return string
-     */
-    #[Deprecated( 'Use Support\getProjectDirectory' )]
-    function getProjectRootDirectory( ?string $append = null ) : string
-    {
-        if ( $append ) {
-            throw new NotSupportedException( 'The append parameter is no longer supported.' );
-        }
-        return getProjectDirectory();
     }
 
     // </editor-fold>
@@ -540,34 +503,6 @@ namespace Assert {
     }
 
     /**
-     * @param mixed $value
-     * @param bool  $nullable
-     *
-     * @return ($nullable is true ? null|string : string)
-     */
-    function as_string( mixed $value, bool $nullable = false ) : ?string
-    {
-        \assert( \is_string( $value ) || ( $nullable && \is_null( $value ) ) );
-
-        return $value;
-    }
-
-    /**
-     * @param mixed $value
-     * @param bool  $is_list
-     *
-     * @return array<array-key, mixed>
-     */
-    function as_array( mixed $value, bool $is_list = false ) : array
-    {
-        \assert( \is_array( $value ) );
-        if ( $is_list ) {
-            \assert( \array_is_list( $value ) );
-        }
-        return $value;
-    }
-
-    /**
      * @param null|string|\Stringable $value
      * @param string                  ...$enforceDomain
      *
@@ -611,52 +546,11 @@ namespace Assert {
 
 namespace String {
 
-    use JetBrains\PhpStorm\Deprecated;
-    use Random\RandomException;
     use Support\Normalize;
     use function Support\getProjectDirectory;
-    use const Support\{AUTO, EMPTY_STRING, URL_SAFE_CHARACTERS_UNICODE};
+    use const Support\{EMPTY_STRING};
 
     // <editor-fold desc="Key Functions">
-
-    #[Deprecated]
-    function createKey() : string
-    {
-        try {
-            return \hash( algo : 'xxh3', data : \random_bytes( 7 ) );
-        }
-        catch ( RandomException ) {
-            return \hash( algo : 'xxh3', data : (string) \rand( 0, PHP_INT_MAX ) );
-        }
-    }
-
-    function implodeKey( mixed $value = AUTO, string $separator = ':' ) : string
-    {
-        $key = [];
-
-        if ( ! \is_iterable( $value ) ) {
-            $value = [$value];
-        }
-
-        foreach ( $value as $segment ) {
-            if ( \is_null( $segment ) ) {
-                continue;
-            }
-
-            $key[] = match ( \gettype( $segment ) ) {
-                'string'  => $segment,
-                'boolean' => $segment ? 'true' : 'false',
-                'integer' => (string) $segment,
-                'object'  => $segment::class.'#'.\spl_object_id( $segment ),
-                default   => \hash(
-                    algo : 'xxh3',
-                    data : \json_encode( $value ) ?: \serialize( $value ),
-                ),
-            };
-        }
-
-        return \implode( $separator, $key );
-    }
 
     /**
      * # Generate a deterministic key from a value.
@@ -671,88 +565,6 @@ namespace String {
     {
         return \json_encode( $value, 64 | 256 | 512 )
                 ?: throw new \InvalidArgumentException( 'Key cannot be encoded: '.\json_last_error_msg() );
-    }
-
-    /**
-     * @param mixed ...$value
-     */
-    #[Deprecated]
-    function cacheKey( mixed ...$value ) : string
-    {
-        $key = [];
-
-        foreach ( $value as $segment ) {
-            if ( \is_null( $segment ) ) {
-                continue;
-            }
-
-            $key[] = match ( \gettype( $segment ) ) {
-                'string'  => $segment,
-                'boolean' => $segment ? 'true' : 'false',
-                'integer' => (string) $segment,
-                default   => \hash(
-                    algo : 'xxh3',
-                    data : \json_encode( $value ) ?: \serialize( $value ),
-                ),
-            };
-        }
-
-        return \implode( ':', $key );
-    }
-
-    /**
-     * # Generate a deterministic hash key from a value.
-     *
-     *  - `$value` will be stringified using `json_encode()` by default.
-     *  - The value is hashed using `xxh3`.
-     *  - The hash is not reversible.
-     *
-     * The $value can be stringified in one of the following ways:
-     *
-     * ## `json`
-     * Often the fastest option when passing a large object.
-     * Will fall back to `serialize` if `json_encode()` fails.
-     *
-     * ## `serialize`
-     * Can sometimes be faster for arrays of strings.
-     *
-     * ## `implode`
-     * Very fast for simple arrays of strings.
-     * Requires the `$value` to be an `array` of `string|int|float|bool|Stringable`.
-     * Nested arrays are not supported.
-     *
-     * ```
-     * hashKey( [ 'example', new stdClass(), true ] );
-     * // => a0a42b9a3a72e14c
-     * ```
-     *
-     * @param mixed                        $value
-     * @param 'implode'|'json'|'serialize' $encoder
-     *
-     * @return string 16 character hash of the value
-     */
-    #[Deprecated]
-    function hashKey(
-        mixed  $value,
-        string $encoder = 'json',
-    ) : string {
-        if ( ! \is_string( $value ) ) {
-            // Use serialize if defined
-            if ( $encoder === 'serialize' ) {
-                $value = \serialize( $value );
-            }
-            // Implode if defined and $value is an array
-            elseif ( $encoder === 'implode' && \is_array( $value ) ) {
-                $value = \implode( ':', $value );
-            }
-            // JSON as default, or as fallback
-            else {
-                $value = \json_encode( $value ) ?: \serialize( $value );
-            }
-        }
-
-        // Hash the $value to a 16 character string
-        return \hash( algo : 'xxh3', data : $value );
     }
 
     /**
@@ -819,45 +631,29 @@ namespace String {
      */
     function filterUrl( null|string|\Stringable $string, bool $preserveTags = false ) : string
     {
+        throw new \BadMethodCallException( __FUNCTION__.' no longer supported.' );
         // Can not be null or an empty string
-        if ( ! $string = (string) $string ) {
-            return EMPTY_STRING;
-        }
-        trigger_deprecation( 'Northrook\\Functions', 'dev', __METHOD__ );
-        static $cache = [];
-
-        return $cache[\json_encode( [$string, $preserveTags], 832 )] ??= (
-            static function() use ( $string, $preserveTags ) : string {
-                $safeCharacters = URL_SAFE_CHARACTERS_UNICODE;
-
-                if ( $preserveTags ) {
-                    $safeCharacters .= '{}|^`"><@';
-                }
-
-                return \preg_replace(
-                    pattern     : "/[^{$safeCharacters}]/u",
-                    replacement : EMPTY_STRING,
-                    subject     : $string,
-                ) ?? EMPTY_STRING;
-            }
-        )();
-    }
-
-    /**
-     * @param null|string|\Stringable $string
-     *
-     * @return string
-     * @deprecated  `\Support\Escape::url()`
-     *              Sanitizes string for use inside href attribute
-     */
-    function escapeUrl( null|string|\Stringable $string ) : string
-    {
-        trigger_deprecation( 'Northrook\\Functions', 'probing', __METHOD__ );
-        // Sanitize the URL, preserving tags for escaping
-        $string = filterUrl( (string) $string, true );
-
-        // Escape special characters including tags
-        return \htmlspecialchars( $string, ENT_QUOTES, 'UTF-8' );
+        // if ( ! $string = (string) $string ) {
+        //     return EMPTY_STRING;
+        // }
+        // trigger_deprecation( 'Northrook\\Functions', 'dev', __METHOD__ );
+        // static $cache = [];
+        //
+        // return $cache[\json_encode( [$string, $preserveTags], 832 )] ??= (
+        //     static function() use ( $string, $preserveTags ) : string {
+        //         $safeCharacters = URL_SAFE_CHARACTERS_UNICODE;
+        //
+        //         if ( $preserveTags ) {
+        //             $safeCharacters .= '{}|^`"><@';
+        //         }
+        //
+        //         return \preg_replace(
+        //             pattern     : "/[^{$safeCharacters}]/u",
+        //             replacement : EMPTY_STRING,
+        //             subject     : $string,
+        //         ) ?? EMPTY_STRING;
+        //     }
+        // )();
     }
 
     // </editor-fold>
@@ -867,13 +663,14 @@ namespace String {
         string                  $replacement = ' ',
         ?string              ...$allowed_tags,
     ) : string {
-        return \str_replace(
-            '  ',
-            ' ',
-            \strip_tags(
-                \str_replace( '<', "{$replacement}<", (string) $string ),
-            ),
-        );
+        throw new \BadMethodCallException( __FUNCTION__.' no longer supported.' );
+        // return \str_replace(
+        //     '  ',
+        //     ' ',
+        //     \strip_tags(
+        //         \str_replace( '<', "{$replacement}<", (string) $string ),
+        //     ),
+        // );
     }
 
     /**
@@ -914,17 +711,18 @@ namespace String {
         int     $limit,
         ?string $caller = null,
     ) : void {
-        $limit  = \PHP_MAXPATHLEN - 2;
-        $length = \strlen( $string );
-        if ( $length > $limit ) {
-            if ( $caller ) {
-                $message = $caller." resulted in a {$length} character string, exceeding the {$limit} limit.";
-            }
-            else {
-                $message = "The provided string is {$length} characters long, exceeding the {$limit} limit.";
-            }
-
-            throw new \LengthException( $message );
-        }
+        throw new \BadMethodCallException( __FUNCTION__.' no longer supported.' );
+        // $limit  = \PHP_MAXPATHLEN - 2;
+        // $length = \strlen( $string );
+        // if ( $length > $limit ) {
+        //     if ( $caller ) {
+        //         $message = $caller." resulted in a {$length} character string, exceeding the {$limit} limit.";
+        //     }
+        //     else {
+        //         $message = "The provided string is {$length} characters long, exceeding the {$limit} limit.";
+        //     }
+        //
+        //     throw new \LengthException( $message );
+        // }
     }
 }
