@@ -40,6 +40,7 @@ final class FileScanner
         protected bool         $dotDirectories = false,
         protected bool         $dotFiles = false,
     ) {
+        dump( __METHOD__, ...\debug_backtrace() );
         $this->setExtension( $extension );
     }
 
@@ -144,12 +145,12 @@ final class FileScanner
             }
 
             // Directories only
-            if ( false === $this->extension && ! $item->isDir() ) {
+            if ( $this->extension === false && ! $item->isDir() ) {
                 continue;
             }
 
             // Files only
-            if ( true === $this->extension && ! $item->isFile() ) {
+            if ( $this->extension === true && ! $item->isFile() ) {
                 continue;
             }
 

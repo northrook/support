@@ -9,9 +9,12 @@ use InvalidArgumentException;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionMethod;
+use SplFileInfo;
+use Throwable;
 
 /**
  * @template T of object
+ * @template-covariant T as class-string<T>
  */
 final class ClassInfo
 {
@@ -41,7 +44,7 @@ final class ClassInfo
 
     public readonly bool $exists;
 
-    public readonly ?FileInfo $fileInfo;
+    public readonly ?SplFileInfo $fileInfo;
 
     /** @var array<int, string> */
     protected array $types = [];
@@ -69,14 +72,17 @@ final class ClassInfo
             $this->fileInfo = $source;
             $this->parseFile();
             $this->namespace = \implode( '\\', $this->namespaces ) ?: null;
-            $this->class     = \implode( '\\', [...$this->namespaces, $this->className] );
+            /** @var class-string<T> $source */
+            $source      = \implode( '\\', [...$this->namespaces, $this->className] );
+            $this->class = $source;
         }
         else {
-            /** @var class-string $source */
+            /** @var class-string<T> $source */
             $this->class    = $source;
             $filePath       = $this->reflect()->getFileName();
-            $this->fileInfo = $filePath ? new FileInfo( $filePath ) : null;
-            $source         = \explode( '\\', $source );
+            $this->fileInfo = $filePath ? new SplFileInfo( $filePath ) : null;
+            /** @var string[] $source */
+            $source = \explode( '\\', $source );
 
             $this->className  = \array_pop( $source ) ?: throw new InvalidArgumentException();
             $this->namespaces = $source;
@@ -106,7 +112,8 @@ final class ClassInfo
         try {
             return $this->reflection ??= new ReflectionClass( $this->class );
         }
-        catch ( ReflectionException $exception ) {
+        // @phpstan-ignore-next-line
+        catch ( Throwable $exception ) {
             throw new BadMethodCallException( $exception->getMessage(), 500, $exception );
         }
     }
@@ -161,20 +168,20 @@ final class ClassInfo
     }
 
     /**
-     * @param FileInfo|string $source
+     * @param SplFileInfo|string $source
      *
-     * @phpstan-assert-if-false string  $source
-     * @phpstan-assert-if-true FileInfo $source
+     * @phpstan-assert-if-false string     $source
+     * @phpstan-assert-if-true SplFileInfo $source
      * @return bool
      */
     private function asSourceFilePath( object|string &$source ) : bool
     {
         if ( \is_string( $source ) && \str_ends_with( $source, '.php' ) ) {
-            $source = new FileInfo( $source );
+            $source = new SplFileInfo( $source );
         }
 
-        if ( $source instanceof FileInfo ) {
-            if ( ! $source->exists() ) {
+        if ( $source instanceof SplFileInfo ) {
+            if ( ! $source->isFile() ) {
                 throw new InvalidArgumentException( "The provided path '{$source}' does not exist." );
             }
 
@@ -187,7 +194,7 @@ final class ClassInfo
 
         \assert( \class_exists( $source, false ) );
 
-        $source = $source::class;
+        $source = (string) class_name( $source );
 
         return false;
     }

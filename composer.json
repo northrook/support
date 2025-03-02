@@ -11,12 +11,8 @@
   ],
   "autoload": {
     "psr-4": {
-      "": "src/"
-    },
-    "files": [
-      "src/constants.php",
-      "src/functions.php"
-    ]
+      "": "src"
+    }
   },
   "minimum-stability": "dev",
   "prefer-stable": true,

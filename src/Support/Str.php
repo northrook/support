@@ -6,7 +6,6 @@ namespace Support;
 
 use JetBrains\PhpStorm\{Deprecated, Language};
 use Stringable;
-use const ENCODING;
 
 class Str implements Stringable
 {
@@ -39,7 +38,7 @@ class Str implements Stringable
     public static function normalize(
         string|Stringable $string,
         int               $tabSize = Str::TAB_SIZE,
-        string            $encoding = ENCODING,
+        string            $encoding = Str::ENCODING,
     ) : string {
         return str_normalize( $string, $tabSize, $encoding );
     }
@@ -57,7 +56,7 @@ class Str implements Stringable
      * @return string
      */
     #[Deprecated( replacement : '\Support\str_encode' )]
-    public static function encode( null|string|Stringable $string, string $encoding = ENCODING ) : string
+    public static function encode( null|string|Stringable $string, string $encoding = Str::ENCODING ) : string
     {
         if ( ! $string = (string) $string ) {
             return EMPTY_STRING;
@@ -67,7 +66,7 @@ class Str implements Stringable
         $decoded  = \htmlspecialchars_decode( $entities, ENT_NOQUOTES );
         $map      = [0x80, 0x10_FF_FF, 0, ~0];
 
-        return \mb_encode_numericentity( $decoded, $map, ENCODING );
+        return \mb_encode_numericentity( $decoded, $map, Str::ENCODING );
     }
 
     /**
@@ -151,7 +150,7 @@ class Str implements Stringable
         int                    $limit = PHP_INT_MAX,
         bool                   $filter = true,
     ) : array {
-        $exploded = \explode( $separator, toString( $string ), $limit );
+        $exploded = \explode( $separator, as_string( $string ), $limit );
 
         return $filter ? Arr::filter( $exploded ) : $exploded;
     }

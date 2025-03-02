@@ -56,9 +56,9 @@ final class Arr
      * @param int|string              $match
      * @param array<array-key, mixed> $array
      *
-     * @return mixed
+     * @return null|string
      */
-    public static function closest( int|string $match, array $array ) : mixed
+    public static function closest( int|string $match, array $array ) : ?string
     {
         // TODO : Match key/value toggle
         // TODO : closest int/float round up/down

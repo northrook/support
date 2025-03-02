@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace Support;
 
+use JetBrains\PhpStorm\Deprecated;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Filesystem as Symfony;
 use Symfony\Component\Filesystem\Exception\IOException;
 use Throwable;
 use LogicException;
 
+#[Deprecated]
 class Filesystem
 {
     /**
@@ -81,10 +83,12 @@ class Filesystem
 
     private readonly Symfony\Filesystem $filesystem;
 
+    #[Deprecated]
     final public function __construct(
         ?Symfony\Filesystem               $filesystem = null,
         private readonly ?LoggerInterface $logger = null,
     ) {
+        dump( __METHOD__, ...\debug_backtrace() );
         if ( $this::$instance ) {
             return;
         }
