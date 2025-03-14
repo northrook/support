@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Support;
 
+use Core\Pathfinder\Path;
 use Stringable;
 use Symfony\Component\VarExporter\VarExporter;
 use InvalidArgumentException;
@@ -11,7 +12,7 @@ use Throwable;
 
 final class PhpStormMeta implements Stringable
 {
-    private readonly FileInfo $projectRoot;
+    private readonly Path $projectRoot;
 
     protected ?string $name = null;
 
@@ -25,7 +26,7 @@ final class PhpStormMeta implements Stringable
         ?string $projectRoot = null,
     ) {
         $projectRoot ??= getProjectDirectory();
-        $this->projectRoot = new FileInfo( "{$projectRoot}/.phpstorm.meta.php/" );
+        $this->projectRoot = new Path( "{$projectRoot}/.phpstorm.meta.php/" );
     }
 
     public function name( string $name ) : self
@@ -97,7 +98,7 @@ final class PhpStormMeta implements Stringable
      */
     public function save( string $fileName ) : void
     {
-        $fileName = '.'.Normalize::key( \trim( $fileName, './\\' ), '_' ).'.meta.php';
+        $fileName = '.'.slug( \trim( $fileName, './\\' ), '_' ).'.meta.php';
 
         $fileInfo  = $this->projectRoot->append( $fileName );
         $generator = '\\'.$this::class;
@@ -105,7 +106,7 @@ final class PhpStormMeta implements Stringable
         $timestamp = $generated->unixTimestamp;
         $date      = $generated->datetime;
 
-        $name = Normalize::key( $this->name ?? \trim( $fileInfo->getFilename(), '.' ), '.' );
+        $name = slug( $this->name ?? \trim( $fileInfo->getFilename(), '.' ), '.' );
 
         $timestamp = "#{$timestamp}#";
 
