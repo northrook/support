@@ -26,6 +26,12 @@ final class Arr
         mixed $match,
         int   $mode = Arr::USE_VALUE,
     ) : string|int|null {
+        trigger_deprecation(
+            'Support\Arr',
+            '_dev',
+            __METHOD__.' deprecated',
+        );
+
         foreach ( $array as $key => $value ) {
             if ( \is_callable( $match ) && match ( $mode ) {
                 Arr::USE_VALUE => $match( $value ),
@@ -60,6 +66,11 @@ final class Arr
      */
     public static function closest( int|string $match, array $array ) : ?string
     {
+        trigger_deprecation(
+            'Support\Arr',
+            '_dev',
+            __METHOD__.' deprecated',
+        );
         // TODO : Match key/value toggle
         // TODO : closest int/float round up/down
         // TODO : closest string match - str_starts_with / other algo?
@@ -100,7 +111,12 @@ final class Arr
         ?callable $callback = null,
         int       $mode = Arr::USE_VALUE,
     ) : array {
-        $callback ??= static fn( $v ) => ! isEmpty( $v );
+        trigger_deprecation(
+            'Support\Arr',
+            '_dev',
+            __METHOD__.' deprecated',
+        );
+        $callback ??= static fn( $v ) => ! is_empty( $v );
         return \array_filter( $array, $callback, $mode );
     }
 
@@ -119,6 +135,12 @@ final class Arr
         ?callable $callback = null,
         int       $mode = Arr::USE_VALUE,
     ) : array {
+        trigger_deprecation(
+            'Support\Arr',
+            '_dev',
+            __METHOD__.' deprecated',
+        );
+
         foreach ( $array as $key => $value ) {
             if ( \is_array( $value ) ) {
                 $array[$key] = ! $value
@@ -147,6 +169,11 @@ final class Arr
         bool|callable $filter = false,
         int           $filterMode = Arr::USE_VALUE,
     ) : array {
+        trigger_deprecation(
+            'Support\Arr',
+            '_dev',
+            __METHOD__.' deprecated',
+        );
         $result = [];
 
         \array_walk_recursive(
@@ -165,7 +192,7 @@ final class Arr
             return $result;
         }
 
-        $callback = $filter === true ? static fn( $v ) => ! isEmpty( $v ) : $filter;
+        $callback = $filter === true ? static fn( $v ) => ! is_empty( $v ) : $filter;
 
         return \array_filter( $result, $callback, $filterMode );
     }
@@ -180,6 +207,11 @@ final class Arr
         array $array,
         bool  $caseSensitive = false,
     ) : array {
+        trigger_deprecation(
+            'Support\Arr',
+            '_dev',
+            __METHOD__.' deprecated',
+        );
         if ( ! $caseSensitive ) {
             $array = \array_map(
                 static fn( $value ) => \is_string( $value ) ? \strtolower( $value ) : $value,
@@ -198,6 +230,11 @@ final class Arr
     public static function uniqueValues(
         array $array,
     ) : array {
+        trigger_deprecation(
+            'Support\Arr',
+            '_dev',
+            __METHOD__.' deprecated',
+        );
         $unique = [];
 
         foreach ( $array as $key => $value ) {
@@ -241,6 +278,12 @@ final class Arr
         array         $array,
         int|string ...$keys,
     ) : bool {
+        trigger_deprecation(
+            'Support\Arr',
+            '_dev',
+            __METHOD__.' deprecated',
+        );
+
         foreach ( $keys as $key ) {
             if ( ! \array_key_exists( $key, $array ) ) {
                 return false;
@@ -262,6 +305,11 @@ final class Arr
         int|string $key,
         int|string $replacement,
     ) : array {
+        trigger_deprecation(
+            'Support\Arr',
+            '_dev',
+            __METHOD__.' deprecated',
+        );
         $keys  = \array_keys( $array );
         $index = \array_search( $key, $keys, true );
 
@@ -283,6 +331,11 @@ final class Arr
         array|object $array,
         bool         $filter = false,
     ) : object {
+        trigger_deprecation(
+            'Support\Arr',
+            '_dev',
+            __METHOD__.' deprecated',
+        );
         if ( $filter && \is_array( $array ) ) {
             $array = \array_filter( $array );
         }

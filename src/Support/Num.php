@@ -5,72 +5,18 @@ declare(strict_types=1);
 namespace Support;
 
 use InvalidArgumentException;
+use JetBrains\PhpStorm\Deprecated;
 
 final class Num
 {
-    /**
-     * @param float $number
-     * @param float $min
-     * @param float $max
-     *
-     * @return bool
-     */
-    public static function within( float $number, float $min, float $max ) : bool
-    {
-        return $number >= $min && $number <= $max;
-    }
-
-    /**
-     * @param float $number
-     * @param float $min
-     * @param float $max
-     * @param bool  $isWithin
-     *
-     * @return float
-     */
-    public static function clamp( float $number, float $min, float $max, bool &$isWithin ) : float
-    {
-        $isWithin = Num::within( $number, $min, $max );
-
-        return \max( $min, \min( $number, $max ) );
-    }
-
-    /**
-     * @see https://stackoverflow.com/questions/5464919/find-a-matching-or-closest-value-in-an-array stackoverflow
-     *
-     * @param int   $humber
-     * @param int[] $in
-     * @param bool  $returnKey
-     *
-     * @return null|int|string
-     */
-    public static function closest( int $humber, array $in, bool $returnKey = false ) : string|int|null
-    {
-        foreach ( $in as $key => $value ) {
-            if ( $humber <= $value ) {
-                return $returnKey ? $key : $value;
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * @param float $from
-     * @param float $to
-     *
-     * @return float
-     */
-    public static function percentDifference( float $from, float $to ) : float
-    {
-        if ( ! $from || $from === $to ) {
-            return 0;
-        }
-        return (float) \number_format( ( $from - $to ) / $from * 100, 2 );
-    }
-
+    #[Deprecated( 'No alternative as of yet.' )]
     public static function pad( int|float $number, int|string $pad, bool $prepend = false ) : int|string
     {
+        trigger_deprecation(
+            'Support\Num',
+            '_dev',
+            __METHOD__.' deprecated',
+        );
         $float = \is_float( $number );
 
         $number = (string) $number;
@@ -97,8 +43,14 @@ final class Num
      *
      * @return string
      */
+    #[Deprecated( 'Use Support\num_byte_size() instead.' )]
     public static function byteSize( string|int|float $bytes ) : string
     {
+        trigger_deprecation(
+            'Support\Num',
+            '_dev',
+            __METHOD__.' deprecated',
+        );
         $bytes = (float) ( \is_string( $bytes ) ? \mb_strlen( $bytes, '8bit' ) : $bytes );
 
         $unitDecimalsByFactor = [
