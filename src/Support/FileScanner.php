@@ -11,7 +11,7 @@ use SplFileInfo;
 
 final class FileScanner
 {
-    /** @var FileInfo[]|string */
+    /** @var SplFileInfo[]|string[] */
     private array $files = [];
 
     /** @var null|positive-int */
@@ -57,9 +57,8 @@ final class FileScanner
      * @param bool                      $dotDirectories
      * @param bool                      $dotFiles
      * @param bool                      $asString
-     * @param bool                      $stringPath
      *
-     * @return FileInfo[]
+     * @return SplFileInfo[]
      */
     public static function get(
         string                 $directory,
@@ -132,38 +131,42 @@ final class FileScanner
                 continue;
             }
 
-            $item = new FileInfo( $fileInfo );
-
             // Skip unless $dotDirectories === true
-            if ( $item->isDotDirectory() && ! $this->dotDirectories ) {
+            if ( ! $this->dotDirectories
+                 && $fileInfo->isDir()
+                 && \str_contains( $fileInfo->getPath(), DIRECTORY_SEPARATOR.'.' )
+            ) {
                 continue;
             }
 
             // Skip unless $dotFiles === true
-            if ( $item->isDotFile() && ! $this->dotFiles ) {
+            if ( ! $this->dotFiles
+                 && $fileInfo->isFile()
+                 && \str_starts_with( $fileInfo->getBasename(), '.' )
+            ) {
                 continue;
             }
 
             // Directories only
-            if ( $this->extension === false && ! $item->isDir() ) {
+            if ( $this->extension === false && ! $fileInfo->isDir() ) {
                 continue;
             }
 
             // Files only
-            if ( $this->extension === true && ! $item->isFile() ) {
+            if ( $this->extension === true && ! $fileInfo->isFile() ) {
                 continue;
             }
 
             // Match against required .ext
-            if ( $this->matchExtension( $item ) ) {
+            if ( $this->matchExtension( $fileInfo ) ) {
                 continue;
             }
 
-            $action( $item );
+            $action( $fileInfo );
         }
     }
 
-    protected function returnLastModified( FileInfo $fileInfo ) : void
+    protected function returnLastModified( SplFileInfo $fileInfo ) : void
     {
         if ( $fileInfo->getMTime() > $this->lastModified ) {
             $this->lastModified                 = $fileInfo->getMTime();
@@ -171,12 +174,12 @@ final class FileScanner
         }
     }
 
-    protected function returnFileInfo( FileInfo $fileInfo ) : void
+    protected function returnFileInfo( SplFileInfo $fileInfo ) : void
     {
         $this->files[] = $fileInfo;
     }
 
-    protected function returnFilePath( FileInfo $fileInfo ) : void
+    protected function returnFilePath( SplFileInfo $fileInfo ) : void
     {
         $this->files[] = (string) $fileInfo;
     }
