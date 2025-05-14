@@ -35,18 +35,18 @@ final class ClassFinder implements Countable
      * Can be run repeatedly with different paramters.
      *
      * @param string|string[]|Stringable|Stringable[] $directories
-     * @param string                                  ...$relativeDirectories relative to provided directories
+     * @param string                                  ...$exclude  relative to provided directories
      *
      * @return $this
      */
     public function scan(
         string|Stringable|array $directories,
-        string               ...$relativeDirectories,
+        string               ...$exclude,
     ) : self {
-        $directories         = $this::normalize( $directories );
-        $relativeDirectories = $this::normalize( $relativeDirectories );
+        $directories = $this::normalize( $directories );
+        $exclude     = $this::normalize( $exclude );
 
-        $hash = \hash( algo : 'xxh3', data : \implode( ':', $directories + $relativeDirectories ) );
+        $hash = \hash( algo : 'xxh3', data : \implode( ':', $directories + $exclude ) );
 
         // Prevent duplicate scans
         if ( \array_key_exists( $hash, $this->lock ) ) {
@@ -57,13 +57,22 @@ final class ClassFinder implements Countable
         $find->files()
             ->name( '*.php' )
             ->in( $directories )
-            ->exclude( $relativeDirectories );
+            ->exclude( $exclude );
 
         foreach ( $find as $file ) {
             $this->parseDiscoveredFile( $file );
         }
 
         $this->lock[$hash] = $find->count();
+
+        return $this;
+    }
+
+    public function parseFiles( SplFileInfo ...$files ) : self
+    {
+        foreach ( $files as $file ) {
+            $this->parseDiscoveredFile( $file );
+        }
 
         return $this;
     }
@@ -143,7 +152,7 @@ final class ClassFinder implements Countable
             return;
         }
 
-        $this->found[$className] = $basename;
+        $this->found[$className] ??= $basename;
     }
 
     private function lineContainsDefinition(
@@ -307,8 +316,8 @@ final class ClassFinder implements Countable
         $directories = (array) $directories;
 
         foreach ( $directories as $i => $path ) {
-            $normalized      = (string) \str_replace( ['\\', '/'], DIRECTORY_SEPARATOR, (string) $path );
-            $directoryPath   = \rtrim( $normalized, DIRECTORY_SEPARATOR );
+            $normalized      = \strtr( (string) $path, '\\', '/' );
+            $directoryPath   = \rtrim( $normalized, '/' );
             $directories[$i] = $directoryPath;
         }
         return $directories;
