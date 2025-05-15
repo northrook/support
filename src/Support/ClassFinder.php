@@ -129,11 +129,11 @@ final class ClassFinder implements Countable
 
         \fclose( $stream );
 
-        if ( ! $basename || ! $hasAttributes ) {
+        if ( ! $basename ) {
             return;
         }
 
-        if ( $this->matchAttributes ) {
+        if ( $this->matchAttributes && $hasAttributes ) {
             $attributes = \array_filter( $attributes );
             if ( $this->requiresAllAttributes
                  && \array_keys( $this->matchAttributes ) !== \array_keys( $attributes )
