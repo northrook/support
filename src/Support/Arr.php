@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Support;
 
 use JsonException;
-use InvalidArgumentException;
 
 final class Arr
 {
@@ -13,7 +12,6 @@ final class Arr
         USE_VALUE = 0,
         USE_BOTH  = 1,
         USE_KEY   = 2;
-
 
     /**
      * @param array<array-key, scalar> $array
@@ -56,7 +54,7 @@ final class Arr
         $unique = [];
 
         foreach ( $array as $key => $value ) {
-            // Check if value is already present
+            // Check if the value is already present
             $isDuplicate = false;
 
             foreach ( $unique as $existing ) {

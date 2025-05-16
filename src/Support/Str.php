@@ -73,7 +73,7 @@ class Str implements Stringable
 
         foreach ( $matches as $index => $match ) {
             $getNamed = static fn( $value, $key ) => \is_string( $key ) ? $value : false;
-            $named    = Arr::filter( $match, $getNamed, Arr::USE_BOTH );
+            $named    = arr_filter( $match, $getNamed, Arr::USE_BOTH );
 
             if ( $named ) {
                 $matches[$index] = ['match' => \array_shift( $match ), ...$named];
@@ -110,7 +110,7 @@ class Str implements Stringable
         );
         $exploded = \explode( $separator, as_string( $string ), $limit );
 
-        return $filter ? Arr::filter( $exploded ) : $exploded;
+        return $filter ? arr_filter( $exploded ) : $exploded;
     }
 
     /**
@@ -209,7 +209,7 @@ class Str implements Stringable
     }
 
     /**
-     * Escape each and every character in the provided string.
+     * Escape every character in the provided string.
      *
      * ```
      *  escapeCharacters('Hello!');

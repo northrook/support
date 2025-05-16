@@ -58,7 +58,7 @@ final class FileScanner
      * @param bool                      $dotFiles
      * @param bool                      $asString
      *
-     * @return SplFileInfo[]
+     * @return SplFileInfo[]|string[]
      */
     public static function get(
         string                 $directory,
@@ -82,7 +82,7 @@ final class FileScanner
      * @param bool                      $dotDirectories
      * @param bool                      $dotFiles
      *
-     * @return object{timestamp: int, extension: string, path: string, fileInfo: FileInfo}
+     * @return object{timestamp: int, extension: string, path: string, fileInfo: SplFileInfo}
      */
     public static function lastModified(
         string                 $directory,
